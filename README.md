@@ -1,3 +1,3 @@
-# cr_serverpoo
+# clash royale tournament server
 
 hello world
