@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Log in</h1>
+<form id="loginForm" method="post" novalidate>
+  <label>
+    Username or Email
+    <input name="identifier" required />
+  </label>
+  <label>
+    Password
+    <input name="password" type="password" required />
+  </label>
+  <button type="submit">Log in</button>
+  <p class="muted">No account? <a href="{{ url_for('register') }}">Create one</a></p>
+</form>
+{% endblock %}
