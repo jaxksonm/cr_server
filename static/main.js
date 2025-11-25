@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // auto-dismiss flash messages
+  // Clear flash messages after 4 seconds
   const msgs = document.querySelectorAll(".flash");
   if (msgs.length) {
     setTimeout(() => {
@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 4000);
   }
 
-  // simple client-side confirm for register password match
+  // Confirm passwords TODO: Could just do in Python
   const reg = document.getElementById("registerForm");
   if (reg) {
     reg.addEventListener("submit", (e) => {
