@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Create account</h1>
+<form id="registerForm" method="post" novalidate>
+  <label>
+    Username
+    <input name="username" required minlength="3" />
+  </label>
+  <label>
+    Email
+    <input name="email" type="email" required />
+  </label>
+  <label>
+    Password
+    <input name="password" type="password" required minlength="6" />
+  </label>
+  <label>
+    Confirm password
+    <input name="password_confirm" type="password" required minlength="6" />
+  </label>
+  <label>
+    Supercell ID
+    <input name="supercell_id" />
+  </label>
+  <button type="submit">Create account</button>
+  <p class="muted">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+</form>
+{% endblock %}
