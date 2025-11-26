@@ -121,4 +121,4 @@ def logout():
 if __name__ == "__main__":
     if not DATABASE.exists():
         print("Database not found. Initialize with: python init_db.py")
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
