@@ -46,7 +46,7 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         password_confirm = request.form.get("password_confirm", "")
-        player_tag = request.form.get("player_tag", "")
+        player_tag = request.form.get("player_tag", "").strip().upper
         # Validate credentials
         if not username or not email or not password:
             flash("Please fill in all required fields.", "error")
@@ -100,6 +100,7 @@ def login():
             session["user_id"] = user["id"]
             session["username"] = user["username"]
             session["player_tag"] = user["player_tag"]
+            # TODO: just store data in session?
             flash("Logged in successfully.", "success")
             return redirect(url_for("dashboard"))
         else: # Login failed
