@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Create account</h1>
+<h1>Create Account</h1>
 <form id="registerForm" method="post" novalidate>
   <label>
     Username
@@ -15,14 +15,14 @@
     <input name="password" type="password" required minlength="6" />
   </label>
   <label>
-    Confirm password
+    Confirm Password
     <input name="password_confirm" type="password" required minlength="6" />
   </label>
   <label>
-    Supercell ID
+    Player Tag
     <input name="player_tag" />
   </label>
-  <button type="submit">Create account</button>
+  <button type="submit">Create Account</button>
   <p class="muted">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
 </form>
 {% endblock %}
