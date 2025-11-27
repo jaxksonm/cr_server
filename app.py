@@ -11,7 +11,6 @@ app = Flask(__name__)
 app.secret_key = "key" # TODO: Get secret key
 
 API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjBkMWI4YmYxLWYyNzAtNGZmNy1iOTlhLWFmZjFhNTRjMDg5OCIsImlhdCI6MTc2NDI1NzQyMSwic3ViIjoiZGV2ZWxvcGVyL2Y3YjA5OWM3LTViZmItNDJhOC1mYzUzLTUzNWRjODI4NTJiMCIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI3My4xMjYuMTQyLjExIl0sInR5cGUiOiJjbGllbnQifV19.zNv5pei5V-J_q7QzrLVCRhiC4GACsWIktZ8V43ruv9RUvJkTyi7fCAmsHaqLM75cC3bVXOtRuRerc5N9HGUIoA"
-PLAYER_TAG = "#UCVLLVL"
 
 # Connect to database
 def get_db():
@@ -47,7 +46,7 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         password_confirm = request.form.get("password_confirm", "")
-        supercell_id = request.form.get("supercell_id", "")
+        player_tag = request.form.get("player_tag", "")
         # Validate credentials
         if not username or not email or not password:
             flash("Please fill in all required fields.", "error")
@@ -58,14 +57,14 @@ def register():
         if len(password) < 6:
             flash("Password must be at least 6 characters.", "error")
             return render_template("register.html")
-        # TODO: Check if supercell_id is valid
+        # TODO: Check if player_tag is valid
         # Add account to database
         db = get_db()
         try:
             password_hash = generate_password_hash(password)
             db.execute(
-                "INSERT INTO users (username, email, password_hash, supercell_id) VALUES (?, ?, ?, ?)",
-                (username, email, password_hash, supercell_id),
+                "INSERT INTO users (username, email, password_hash, player_tag) VALUES (?, ?, ?, ?)",
+                (username, email, password_hash, player_tag),
             )
             db.commit()
             flash("Account created — please log in.", "success")
@@ -100,6 +99,7 @@ def login():
             session.clear()
             session["user_id"] = user["id"]
             session["username"] = user["username"]
+            session["player_tag"] = user["player_tag"]
             flash("Logged in successfully.", "success")
             return redirect(url_for("dashboard"))
         else: # Login failed
@@ -112,19 +112,16 @@ def dashboard():
     if not session.get("user_id"): # Cannot see dashboard unless logged in
         flash("Please log in to see the dashboard.", "error")
         return redirect(url_for("login"))
-    url = f"https://api.clashroyale.com/v1/players/%23{PLAYER_TAG}"
+    tag = session.get('player_tag')
+    url = f"https://api.clashroyale.com/v1/players/%23{tag}"
     headers = {"Authorization": f"Bearer {API_KEY}"}
     try:
         response = requests.get(url, headers=headers)
-        print("got request, status =", response.status_code)
         response.raise_for_status()
-        print("raise for status")
         data = response.json()
-        print("store in data")
-        return render_template("dashboard.html", data=data, player_tag=PLAYER_TAG, error=None)
+        return render_template("dashboard.html", data=data, player_tag=tag, error=None) # TODO: just include player_tag in data?
     except requests.RequestException as e:
-        print("test")
-        return render_template("dashboard.html", data=None, player_tag=PLAYER_TAG, error=str(e))    
+        return render_template("dashboard.html", data=None, player_tag=tag, error=str(e))    
 
 
 @app.route("/logout")
