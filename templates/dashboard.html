@@ -9,5 +9,4 @@
     <p>Clan: {{ data['clan']['name'] if data.get('clan') else 'None' }}</p>
 </div>
 
-<p><a href="{{ url_for('logout') }}">Logout</a></p>
 {% endblock %}
