@@ -61,6 +61,13 @@ form {
     box-shadow: 0 1px 0 rgba(0,0,0,0.03);
 }
 
+.bubble {
+  background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+}
+
 label {
     display:block;
     margin-bottom: 0.75rem;
