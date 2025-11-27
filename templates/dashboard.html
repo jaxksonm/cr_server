@@ -1,8 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Welcome, {{ data['name'] }}!</h1>
 
-<p>Dashboard</p>
+<div class = "bubble">
+    <h1>Welcome, {{ data['name'] }}!</h1>
+    <p>Player Tag: #{{ player_tag }}</p>
+    <p>Trophies: {{ data['trophies'] }}</p>
+    <p>Highest Trophies: {{ data['bestTrophies'] }}</p>
+    <p>Clan: {{ data['clan']['name'] if data.get('clan') else 'None' }}</p>
+</div>
 
 <p><a href="{{ url_for('logout') }}">Logout</a></p>
 {% endblock %}
