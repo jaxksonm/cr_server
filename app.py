@@ -46,9 +46,9 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         password_confirm = request.form.get("password_confirm", "")
-        player_tag = request.form.get("player_tag", "").strip().upper
+        player_tag = request.form.get("player_tag", "").strip().upper()
         # Validate credentials
-        if not username or not email or not password:
+        if not username or not email or not password or not player_tag:
             flash("Please fill in all required fields.", "error")
             return render_template("register.html")
         if password != password_confirm:
