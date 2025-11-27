@@ -2,12 +2,16 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from pathlib import Path
+import requests
 
 BASE_DIR = Path(__file__).parent
 DATABASE = BASE_DIR / "users.db"
 
 app = Flask(__name__)
 app.secret_key = "key" # TODO: Get secret key
+
+API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjBkMWI4YmYxLWYyNzAtNGZmNy1iOTlhLWFmZjFhNTRjMDg5OCIsImlhdCI6MTc2NDI1NzQyMSwic3ViIjoiZGV2ZWxvcGVyL2Y3YjA5OWM3LTViZmItNDJhOC1mYzUzLTUzNWRjODI4NTJiMCIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI3My4xMjYuMTQyLjExIl0sInR5cGUiOiJjbGllbnQifV19.zNv5pei5V-J_q7QzrLVCRhiC4GACsWIktZ8V43ruv9RUvJkTyi7fCAmsHaqLM75cC3bVXOtRuRerc5N9HGUIoA"
+PLAYER_TAG = "#UCVLLVL"
 
 # Connect to database
 def get_db():
@@ -108,7 +112,19 @@ def dashboard():
     if not session.get("user_id"): # Cannot see dashboard unless logged in
         flash("Please log in to see the dashboard.", "error")
         return redirect(url_for("login"))
-    return render_template("dashboard.html", username=session.get("username"))
+    url = f"https://api.clashroyale.com/v1/players/%23{PLAYER_TAG}"
+    headers = {"Authorization": f"Bearer {API_KEY}"}
+    try:
+        response = requests.get(url, headers=headers)
+        print("got request, status =", response.status_code)
+        response.raise_for_status()
+        print("raise for status")
+        data = response.json()
+        print("store in data")
+        return render_template("dashboard.html", data=data, player_tag=PLAYER_TAG, error=None)
+    except requests.RequestException as e:
+        print("test")
+        return render_template("dashboard.html", data=None, player_tag=PLAYER_TAG, error=str(e))    
 
 
 @app.route("/logout")
