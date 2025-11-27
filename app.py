@@ -46,7 +46,7 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         password_confirm = request.form.get("password_confirm", "")
-        player_tag = request.form.get("player_tag", "").strip().upper
+        player_tag = request.form.get("player_tag", "").strip().upper()
         # Validate credentials
         if not username or not email or not password:
             flash("Please fill in all required fields.", "error")
@@ -108,7 +108,10 @@ def login():
                 response.raise_for_status()
                 session["data"] = response.json()
                 flash("Logged in successfully.", "success")
+                print("data set in session")
+                print(session.get("data"))
             except requests.RequestException as e:
+                print("data = None")
                 session["data"] = None
             return redirect(url_for("dashboard"))    
         else: # Login failed
@@ -118,7 +121,7 @@ def login():
 
 @app.route("/dashboard")
 def dashboard():
-    if not session.get("user_id"): # Cannot see dashboard unless logged in
+    if not session.get("data"): # Cannot see dashboard unless logged in
         flash("Please log in to see the dashboard.", "error")
         return redirect(url_for("login"))
     return render_template("dashboard.html", data=session.get("data"), player_tag=session.get("player_tag"), error=None) # TODO: just include player_tag in data?
