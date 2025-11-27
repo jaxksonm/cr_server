@@ -54,8 +54,8 @@ def register():
         if password != password_confirm:
             flash("Passwords do not match.", "error")
             return render_template("register.html")
-        if len(password) < 6:
-            flash("Password must be at least 6 characters.", "error")
+        if len(password) < 8:
+            flash("Password must be at least 8 characters.", "error")
             return render_template("register.html")
         # TODO: Check if player_tag is valid
         # Add account to database
