@@ -100,9 +100,17 @@ def login():
             session["user_id"] = user["id"]
             session["username"] = user["username"]
             session["player_tag"] = user["player_tag"]
-            # TODO: just store data in session?
-            flash("Logged in successfully.", "success")
-            return redirect(url_for("dashboard"))
+            tag = session.get("player_tag")
+            url = f"https://api.clashroyale.com/v1/players/%23{tag}"
+            headers = {"Authorization": f"Bearer {API_KEY}"}
+            try:
+                response = requests.get(url, headers=headers)
+                response.raise_for_status()
+                session["data"] = response.json()
+                flash("Logged in successfully.", "success")
+            except requests.RequestException as e:
+                session["data"] = None
+            return redirect(url_for("dashboard"))    
         else: # Login failed
             flash("Invalid credentials.", "error")
             return render_template("login.html")
@@ -113,16 +121,7 @@ def dashboard():
     if not session.get("user_id"): # Cannot see dashboard unless logged in
         flash("Please log in to see the dashboard.", "error")
         return redirect(url_for("login"))
-    tag = session.get('player_tag')
-    url = f"https://api.clashroyale.com/v1/players/%23{tag}"
-    headers = {"Authorization": f"Bearer {API_KEY}"}
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        return render_template("dashboard.html", data=data, player_tag=tag, error=None) # TODO: just include player_tag in data?
-    except requests.RequestException as e:
-        return render_template("dashboard.html", data=None, player_tag=tag, error=str(e))    
+    return render_template("dashboard.html", data=session.get("data"), player_tag=session.get("player_tag"), error=None) # TODO: just include player_tag in data?
 
 
 @app.route("/logout")
