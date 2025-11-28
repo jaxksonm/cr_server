@@ -125,6 +125,7 @@ def login():
             session["user_id"] = user["id"]
             session["username"] = user["username"]
             session["player_tag"] = user["player_tag"]
+            session["points"] = user["points"]
             flash("Logged in successfully.", "success")
             return redirect(url_for("home"))
         else: # Login failed
@@ -138,15 +139,16 @@ def profile():
         flash("Please log in to see profile.", "error")
         return redirect(url_for("login"))
     tag = session.get('player_tag')
+    points = session.get('points')
     url = f"https://api.clashroyale.com/v1/players/%23{tag}"
     headers = {"Authorization": f"Bearer {API_KEY}"}
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
-        return render_template("profile.html", data=data, player_tag=tag, error=None) # TODO: just include player_tag in data?
+        return render_template("profile.html", data=data, player_tag=tag, points=points) # TODO: is player tag included in data?
     except requests.RequestException as e:
-        return render_template("profile.html", data=None, player_tag=tag, error=str(e))    
+        return render_template("profile.html", data=None, player_tag=tag, points=points)    
 
 
 @app.route("/logout")
