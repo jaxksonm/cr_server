@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class = "bubble">
+    <h1>{{ data['name'] }}</h1>
+    <p>Player Tag: #{{ player_tag }}</p>
+    <p>UNH CRC Points: {{ points }}</p>
+    <p>Trophies: {{ data['trophies'] }}</p>
+    <p>Highest Trophies: {{ data['bestTrophies'] }}</p>
+    <p>Clan: {{ data['clan']['name'] if data.get('clan') else 'None' }}</p>
+</div>
+
+{% endblock %}

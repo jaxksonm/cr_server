@@ -49,6 +49,10 @@ nav a {
     font-size:0.95rem;
 }
 
+li {
+    margin-bottom: 0.75rem;
+}
+
 h1 {
     margin-top: 0;
     font-size:1.6rem;
@@ -59,6 +63,15 @@ form {
     padding: 1rem;
     border-radius: 8px;
     box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 0.75rem;
+}
+
+.bubble {
+  background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+    margin-bottom: 0.75rem;
 }
 
 label {
@@ -108,4 +121,12 @@ button {
     background: #fff1f1;
     color: #842029;
     border: 1px solid #ffd6d6;
+}
+
+.tournament {
+  display:flex; gap:1rem; align-items:flex-start;
+}
+
+.tournament .round {
+  border-left:1px solid #ddd; padding-left:1rem;
 }
