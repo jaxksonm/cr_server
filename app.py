@@ -38,18 +38,18 @@ def index():
 @app.route("/home")
 def home():
     if not session.get("user_id"): # User not logged in
-        return render_template("home.html", data=None, player_tag=None, error=None) # TODO: just include player_tag in data?
+        return render_template("home.html", data=None)
     else: # User logged in
-        tag = session.get('player_tag')
-        url = f"https://api.clashroyale.com/v1/players/%23{tag}"
+        player_tag = session.get('player_tag')
+        url = f"https://api.clashroyale.com/v1/players/%23{player_tag}"
         headers = {"Authorization": f"Bearer {API_KEY}"}
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             data = response.json()
-            return render_template("home.html", data=data, player_tag=tag, error=None) # TODO: just include player_tag in data?
+            return render_template("home.html", data=data)
         except requests.RequestException as e:
-            return render_template("home.html", data=None, player_tag=tag, error=str(e))    
+            return render_template("home.html", data=None)    
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -72,7 +72,15 @@ def register():
         if len(password) < 6:
             flash("Password must be at least 6 characters.", "error")
             return render_template("register.html")
-        # TODO: Check if player_tag is valid
+        url = f"https://api.clashroyale.com/v1/players/%23{player_tag}"
+        headers = {"Authorization": f"Bearer {API_KEY}"}
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+        except requests.RequestException as e:
+            flash("Enter valid player tag.", "error")
+            return render_template("register.html")  
         # Add account to database
         db = get_db()
         try:
@@ -89,6 +97,8 @@ def register():
                 flash("Username already taken.", "error")
             elif "email" in str(e).lower():
                 flash("Email already registered.", "error")
+            elif "player_tag" in str(e).lower():
+                flash("Player tag already registered.", "error")
             else:
                 flash("An error occurred. Try again.", "error")
             return render_template("register.html")

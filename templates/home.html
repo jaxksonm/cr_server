@@ -16,11 +16,13 @@
                 <li>Rank highly in tournaments to earn UNH CRC points and climb the leaderboard to become the best clasher at UNH!</li>
                 <li>The leaderboard resets every semester, and all players' points are set back to zero, but the #1 spot will earn a prize and a badge on their UNH CRC profile!</li>
             </ul>
+            {% if not data %}
             <li>You must register a UNH CRC account and log in to join tournaments.</li>
             <ul>
                 <li>Provide your Clash Royale player tag when making a UNH CRC account, to sync it to your UNH CRC account.</li>
                 <li>You can find your player tag in your profile in Clash Royale under your username. It is of the form #XXXXXXX.</li>
             </ul>
+            {% endif %}
         </ul>
     </p>
 </div>
