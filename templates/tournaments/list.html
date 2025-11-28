@@ -2,7 +2,9 @@
 {% block content %}
 <div class = bubble>
   <h1>Tournaments</h1>
+  {% if is_admin %}
   <p><a href="{{ url_for('tournaments_create') }}">Create tournament</a></p>
+  {% endif %}
 </div>
   {% if tournaments %}
     {% for t in tournaments %}
