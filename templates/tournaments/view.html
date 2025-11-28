@@ -3,7 +3,7 @@
 <div class = "bubble">
   <h1>{{ tournament['name'] }}</h1>
   <p> {{ tournament['description'] }}</p>
-  <p> {{ tournament['date'] }}</p>
+  <p> {{ tournament['date'] }} in {{ tournament['location'] }}</p>
   <p><a href="{{ url_for('tournaments_list') }}">Back to tournaments</a></p>
 </div>
 
