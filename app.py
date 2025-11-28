@@ -32,11 +32,24 @@ def close_db(exception=None):
 
 @app.route("/")
 def index():
-    # Redirect to profile if user logged in...
-    if session.get("user_id"):
-        return redirect(url_for("profile"))
-    # Else redirect to login
-    return redirect(url_for("login"))
+    return redirect(url_for("home"))
+
+
+@app.route("/home")
+def home():
+    if not session.get("user_id"): # User not logged in
+        return render_template("home.html", data=None, player_tag=None, error=None) # TODO: just include player_tag in data?
+    else: # User logged in
+        tag = session.get('player_tag')
+        url = f"https://api.clashroyale.com/v1/players/%23{tag}"
+        headers = {"Authorization": f"Bearer {API_KEY}"}
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            return render_template("home.html", data=data, player_tag=tag, error=None) # TODO: just include player_tag in data?
+        except requests.RequestException as e:
+            return render_template("home.html", data=None, player_tag=tag, error=str(e))    
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -103,7 +116,7 @@ def login():
             session["username"] = user["username"]
             session["player_tag"] = user["player_tag"]
             flash("Logged in successfully.", "success")
-            return redirect(url_for("profile"))
+            return redirect(url_for("home"))
         else: # Login failed
             flash("Invalid credentials.", "error")
             return render_template("login.html")
