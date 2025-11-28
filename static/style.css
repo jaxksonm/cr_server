@@ -116,3 +116,11 @@ button {
     color: #842029;
     border: 1px solid #ffd6d6;
 }
+
+.tournament {
+  display:flex; gap:1rem; align-items:flex-start;
+}
+
+.tournament .round {
+  border-left:1px solid #ddd; padding-left:1rem;
+}
