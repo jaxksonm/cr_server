@@ -4,6 +4,7 @@ import sqlite3
 from pathlib import Path
 import requests
 from datetime import datetime
+from math import ceil, log2
 
 BASE_DIR = Path(__file__).parent
 DATABASE = BASE_DIR / "users.db"
@@ -132,24 +133,39 @@ def logout():
     return redirect(url_for("login"))
 
 
+def create_bracket(participants):
+    # sort by seed (0 means unspecified -> lowest priority)
+    participants_sorted = sorted(participants, key=lambda p: (p[2] if p[2] is not None else 9999))
+    ids = [p[0] for p in participants_sorted]
+    n = len(ids)
+    if n == 0:
+        return []
+
+    # Next power of two
+    next_pow2 = 1 << (ceil(log2(n)))
+    byes = next_pow2 - n
+
+    # Simple seeding pairing: pair highest with lowest, etc.
+    # Create initial bracket slots of length next_pow2 with byes as None
+    slots = ids[:] + [None] * byes
+
+    # initial round pairings
+    pairs = []
+    while len(slots) > 1:
+        new_pairs = []
+        for i in range(0, len(slots), 2):
+            new_pairs.append((slots[i], slots[i+1] if i+1 < len(slots) else None))
+        pairs.append(new_pairs)
+        # winners placeholders for next round: use None placeholders
+        slots = [None] * (len(new_pairs))
+    return pairs
+
+
 @app.route("/tournaments")
 def tournaments_list():
     db = get_db()
     rows = db.execute("SELECT id, name, date, created_at FROM tournaments ORDER BY date ASC").fetchall()
-    tournaments = []
-    for row in rows:
-        # Attempt to format date
-        try:
-            dt = datetime.fromisoformat(row["date"])
-            formatted_date = dt.strftime("%B %d, %Y at %I:%M %p")  
-        except:
-            formatted_date = row["date"]
-        tournaments.append({
-            "id": row["id"],
-            "name": row["name"],
-            "date": formatted_date
-        })
-    return render_template("tournaments/list.html", tournaments=tournaments)
+    return render_template("tournaments/list.html", tournaments=rows)
 
 
 @app.route("/tournaments/create", methods=["GET", "POST"])
@@ -159,11 +175,20 @@ def tournaments_create():
     else:
         name = request.form.get("name", "").strip()
         date = request.form.get("date", "")
+        description = request.form.get("description", "")
         if not name or not date:
             flash("Enter name and date.", "error")
             return render_template("tournaments/create.html")
+        if not description:
+            description = "No description."
+        # Attempt to format date
+        try:
+            d = datetime.fromisoformat(date)
+            formatted_date = d.strftime("%B %d, %Y at %I:%M %p")  
+        except:
+            formatted_date = date
         db = get_db()
-        db.execute("INSERT INTO tournaments (name, date) VALUES (?, ?)", (name, date))
+        db.execute("INSERT INTO tournaments (name, description, date) VALUES (?, ?, ?)", (name, description, formatted_date))
         db.commit()
         flash("Tournament created.", "success")
         return redirect(url_for("tournaments_list"))
@@ -171,7 +196,50 @@ def tournaments_create():
 
 @app.route("/tournaments/<int:tid>", methods=["GET", "POST"])
 def tournament_view(tid):
-    return render_template("tournaments/view.html")
+    db = get_db()
+    tour = db.execute("SELECT id, name, description, date, created_at FROM tournaments WHERE id = ?", (tid,)).fetchone()
+    if not tour:
+        flash("Tournament not found.", "error")
+        return redirect(url_for("tournaments_list"))
+    # Add participant
+    if request.method == "POST" and request.form.get("action") == "add_participant":
+        pname = request.form.get("participant_name", "").strip()
+        pseed = request.form.get("seed", "").strip()
+        seed_val = int(pseed) if pseed.isdigit() else None
+        if pname:
+            db.execute("INSERT INTO participants (tournament_id, name, seed) VALUES (?, ?, ?)", (tid, pname, seed_val))
+            db.commit()
+            flash("Participant added.", "success")
+            return redirect(url_for("tournament_view", tid=tid))
+        else:
+            flash("Participant name required.", "error")
+            return redirect(url_for("tournament_view", tid=tid))
+    # Generate bracket
+    parts = db.execute("SELECT id, name, seed FROM participants WHERE tournament_id = ? ORDER BY seed ASC, id ASC", (tid,)).fetchall()
+    participants = [(r["id"], r["name"], r["seed"]) for r in parts]
+    # If user requested to auto-generate initial matches:
+    if request.args.get("generate") == "1":
+        # delete existing matches for this tournament to regenerate
+        db.execute("DELETE FROM matches WHERE tournament_id = ?", (tid,))
+        # create initial pairings
+        rounds = create_bracket(participants)
+        # rounds is list of rounds; we will only insert round 1 pairings
+        if rounds:
+            round1 = rounds[0]
+            for p1, p2 in round1:
+                db.execute(
+                    "INSERT INTO matches (tournament_id, round, player1_id, player2_id) VALUES (?, ?, ?, ?)",
+                    (tid, 1, p1, p2)
+                )
+            db.commit()
+            flash("Bracket generated (round 1 created).", "success")
+            return redirect(url_for("tournament_view", tid=tid))
+    # Load matches grouped by round
+    match_rows = db.execute("SELECT * FROM matches WHERE tournament_id = ? ORDER BY round, id", (tid,)).fetchall()
+    rounds = {}
+    for m in match_rows:
+        rounds.setdefault(m["round"], []).append(m)
+    return render_template("tournaments/view.html", tournament=tour, participants=participants, rounds=rounds)
 
 
 if __name__ == "__main__":
