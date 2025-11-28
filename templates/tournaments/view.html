@@ -10,9 +10,17 @@
 <form method="post">
   <h2>Participants</h2>
   <input type="hidden" name="action" value="add_participant">
-  <label>Name <input name="participant_name" required></label>
-  <label>Seed <input name="seed" size="4"></label>
-  <button type="submit">Add participant</button>
+  {% if session.get('user_id') and not joined %}
+  <form method="post" action="{{ url_for('tournament_join', tid=tournament['id']) }}">
+    <!-- simple POST button to join -->
+    <button type="submit">Join tournament</button>
+  </form>
+{% elif session.get('user_id') and joined %}
+  <p><em>You have already joined this tournament.</em></p>
+{% else %}
+  <p><a href="{{ url_for('login') }}">Log in</a> to join the tournament.</p>
+{% endif %}
+
   {% if participants %}
   <ul>
   {% for p in participants %}

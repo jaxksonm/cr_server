@@ -225,52 +225,127 @@ def tournaments_create():
         return redirect(url_for("tournaments_list"))
 
 
+# @app.route("/tournaments/<int:tid>", methods=["GET", "POST"])
+# def tournament_view(tid):
+#     db = get_db()
+#     tour = db.execute("SELECT id, name, description, date, location FROM tournaments WHERE id = ?", (tid,)).fetchone()
+#     if not tour:
+#         flash("Tournament not found.", "error")
+#         return redirect(url_for("tournaments_list"))
+#     # Add participant
+#     if request.method == "POST" and request.form.get("action") == "add_participant":
+#         pname = request.form.get("participant_name", "").strip()
+#         pseed = request.form.get("seed", "").strip()
+#         seed_val = int(pseed) if pseed.isdigit() else None
+#         if pname:
+#             db.execute("INSERT INTO participants (tournament_id, name, seed) VALUES (?, ?, ?)", (tid, pname, seed_val))
+#             db.commit()
+#             flash("Participant added.", "success")
+#             return redirect(url_for("tournament_view", tid=tid))
+#         else:
+#             flash("Participant name required.", "error")
+#             return redirect(url_for("tournament_view", tid=tid))
+#     # Generate bracket
+#     parts = db.execute("SELECT id, name, seed FROM participants WHERE tournament_id = ? ORDER BY seed ASC, id ASC", (tid,)).fetchall()
+#     participants = [(r["id"], r["name"], r["seed"]) for r in parts]
+#     # If user requested to auto-generate initial matches:
+#     if request.args.get("generate") == "1":
+#         # delete existing matches for this tournament to regenerate
+#         db.execute("DELETE FROM matches WHERE tournament_id = ?", (tid,))
+#         # create initial pairings
+#         rounds = create_bracket(participants)
+#         # rounds is list of rounds; we will only insert round 1 pairings
+#         if rounds:
+#             round1 = rounds[0]
+#             for p1, p2 in round1:
+#                 db.execute(
+#                     "INSERT INTO matches (tournament_id, round, player1_id, player2_id) VALUES (?, ?, ?, ?)",
+#                     (tid, 1, p1, p2)
+#                 )
+#             db.commit()
+#             flash("Bracket generated (round 1 created).", "success")
+#             return redirect(url_for("tournament_view", tid=tid))
+#     # Load matches grouped by round
+#     match_rows = db.execute("SELECT * FROM matches WHERE tournament_id = ? ORDER BY round, id", (tid,)).fetchall()
+#     rounds = {}
+#     for m in match_rows:
+#         rounds.setdefault(m["round"], []).append(m)
+#     return render_template("tournaments/view.html", tournament=tour, participants=participants, rounds=rounds)
+
 @app.route("/tournaments/<int:tid>", methods=["GET", "POST"])
 def tournament_view(tid):
     db = get_db()
-    tour = db.execute("SELECT id, name, description, date, location FROM tournaments WHERE id = ?", (tid,)).fetchone()
+    tour = db.execute("SELECT id, name, created_at FROM tournaments WHERE id = ?", (tid,)).fetchone()
     if not tour:
         flash("Tournament not found.", "error")
         return redirect(url_for("tournaments_list"))
-    # Add participant
+
+    # Join tournament
     if request.method == "POST" and request.form.get("action") == "add_participant":
-        pname = request.form.get("participant_name", "").strip()
-        pseed = request.form.get("seed", "").strip()
-        seed_val = int(pseed) if pseed.isdigit() else None
-        if pname:
-            db.execute("INSERT INTO participants (tournament_id, name, seed) VALUES (?, ?, ?)", (tid, pname, seed_val))
-            db.commit()
-            flash("Participant added.", "success")
-            return redirect(url_for("tournament_view", tid=tid))
-        else:
-            flash("Participant name required.", "error")
-            return redirect(url_for("tournament_view", tid=tid))
-    # Generate bracket
-    parts = db.execute("SELECT id, name, seed FROM participants WHERE tournament_id = ? ORDER BY seed ASC, id ASC", (tid,)).fetchall()
-    participants = [(r["id"], r["name"], r["seed"]) for r in parts]
-    # If user requested to auto-generate initial matches:
-    if request.args.get("generate") == "1":
-        # delete existing matches for this tournament to regenerate
-        db.execute("DELETE FROM matches WHERE tournament_id = ?", (tid,))
-        # create initial pairings
-        rounds = create_bracket(participants)
-        # rounds is list of rounds; we will only insert round 1 pairings
-        if rounds:
-            round1 = rounds[0]
-            for p1, p2 in round1:
-                db.execute(
-                    "INSERT INTO matches (tournament_id, round, player1_id, player2_id) VALUES (?, ?, ?, ?)",
-                    (tid, 1, p1, p2)
-                )
-            db.commit()
-            flash("Bracket generated (round 1 created).", "success")
-            return redirect(url_for("tournament_view", tid=tid))
-    # Load matches grouped by round
+        name = session.get("username")
+        user_id = session.get("user_id")
+        db.execute("INSERT INTO participants (tournament_id, name, user_id, seed) VALUES (?, ?, ?, ?)", (tid, name, user_id, 0)) # TODO: Calculate seed
+        db.commit()
+        flash("Joined tournament.", "success")
+        return redirect(url_for("tournament_view", tid=tid))
+
+    # Load participants (include user_id)
+    part_rows = db.execute(
+        "SELECT id, name, seed, user_id FROM participants WHERE tournament_id = ? ORDER BY id ASC",
+        (tid,)
+    ).fetchall()
+    participants = [(r["id"], r["name"], r["seed"], r["user_id"]) for r in part_rows]
+
+    # determine whether current user has joined
+    joined = False
+    current_user_id = session.get("user_id")
+    if current_user_id:
+        for r in part_rows:
+            if r["user_id"] == current_user_id:
+                joined = True
+                break
+
+    # load matches
     match_rows = db.execute("SELECT * FROM matches WHERE tournament_id = ? ORDER BY round, id", (tid,)).fetchall()
     rounds = {}
     for m in match_rows:
         rounds.setdefault(m["round"], []).append(m)
-    return render_template("tournaments/view.html", tournament=tour, participants=participants, rounds=rounds)
+    return render_template("tournaments/view.html",
+                           tournament=tour,
+                           participants=participants,
+                           rounds=rounds,
+                           joined=joined)
+
+
+
+@app.route("/tournaments/<int:tid>/join", methods=["POST"])
+def tournament_join(tid):
+    # must be logged in
+    if not session.get("user_id"):
+        flash("Please log in to join a tournament.", "error")
+        return redirect(url_for("login"))
+
+    db = get_db()
+    user_id = session["user_id"]
+    # prevent double join: check by user_id
+    existing = db.execute(
+        "SELECT id FROM participants WHERE tournament_id = ? AND user_id = ?",
+        (tid, user_id)
+    ).fetchone()
+    if existing:
+        flash("You already joined this tournament.", "info")
+        return redirect(url_for("tournament_view", tid=tid))
+
+    # Insert participant using the logged-in username (and optionally player_tag)
+    name = session.get("username") or f"user{user_id}"
+    # We don't use seed here (ignore seeds for now)
+    db.execute(
+        "INSERT INTO participants (tournament_id, name, seed, user_id) VALUES (?, ?, ?, ?)",
+        (tid, name, None, user_id)
+    )
+    db.commit()
+    flash("You have joined the tournament.", "success")
+    return redirect(url_for("tournament_view", tid=tid))
 
 
 if __name__ == "__main__":
