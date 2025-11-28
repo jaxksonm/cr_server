@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from pathlib import Path
 import requests
+from datetime import datetime
 
 BASE_DIR = Path(__file__).parent
 DATABASE = BASE_DIR / "users.db"
@@ -30,9 +31,9 @@ def close_db(exception=None):
 
 @app.route("/")
 def index():
-    # Redirect to dashboard if user logged in...
+    # Redirect to profile if user logged in...
     if session.get("user_id"):
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("profile"))
     # Else redirect to login
     return redirect(url_for("login"))
 
@@ -84,7 +85,7 @@ def login():
     if request.method == "GET": # Serve form
         return render_template("login.html")
     else: # On form submit
-        identifier = request.form.get("identifier", "").strip()  # Username or email
+        identifier = request.form.get("identifier", "").strip() # Username or email
         password = request.form.get("password", "")
         # Validate credentials
         if not identifier or not password:
@@ -100,18 +101,17 @@ def login():
             session["user_id"] = user["id"]
             session["username"] = user["username"]
             session["player_tag"] = user["player_tag"]
-            # TODO: just store data in session?
             flash("Logged in successfully.", "success")
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("profile"))
         else: # Login failed
             flash("Invalid credentials.", "error")
             return render_template("login.html")
 
 
-@app.route("/dashboard")
-def dashboard():
-    if not session.get("user_id"): # Cannot see dashboard unless logged in
-        flash("Please log in to see the dashboard.", "error")
+@app.route("/profile")
+def profile():
+    if not session.get("user_id"): # Cannot see profile unless logged in
+        flash("Please log in to see profile.", "error")
         return redirect(url_for("login"))
     tag = session.get('player_tag')
     url = f"https://api.clashroyale.com/v1/players/%23{tag}"
@@ -120,9 +120,9 @@ def dashboard():
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
-        return render_template("dashboard.html", data=data, player_tag=tag, error=None) # TODO: just include player_tag in data?
+        return render_template("profile.html", data=data, player_tag=tag, error=None) # TODO: just include player_tag in data?
     except requests.RequestException as e:
-        return render_template("dashboard.html", data=None, player_tag=tag, error=str(e))    
+        return render_template("profile.html", data=None, player_tag=tag, error=str(e))    
 
 
 @app.route("/logout")
@@ -130,6 +130,48 @@ def logout():
     session.clear()
     flash("Logged out.", "success")
     return redirect(url_for("login"))
+
+
+@app.route("/tournaments")
+def tournaments_list():
+    db = get_db()
+    rows = db.execute("SELECT id, name, date, created_at FROM tournaments ORDER BY date ASC").fetchall()
+    tournaments = []
+    for row in rows:
+        # Attempt to format date
+        try:
+            dt = datetime.fromisoformat(row["date"])
+            formatted_date = dt.strftime("%B %d, %Y at %I:%M %p")  
+        except:
+            formatted_date = row["date"]
+        tournaments.append({
+            "id": row["id"],
+            "name": row["name"],
+            "date": formatted_date
+        })
+    return render_template("tournaments/list.html", tournaments=tournaments)
+
+
+@app.route("/tournaments/create", methods=["GET", "POST"])
+def tournaments_create():
+    if request.method == "GET":
+        return render_template("tournaments/create.html")
+    else:
+        name = request.form.get("name", "").strip()
+        date = request.form.get("date", "")
+        if not name or not date:
+            flash("Enter name and date.", "error")
+            return render_template("tournaments/create.html")
+        db = get_db()
+        db.execute("INSERT INTO tournaments (name, date) VALUES (?, ?)", (name, date))
+        db.commit()
+        flash("Tournament created.", "success")
+        return redirect(url_for("tournaments_list"))
+
+
+@app.route("/tournaments/<int:tid>", methods=["GET", "POST"])
+def tournament_view(tid):
+    return render_template("tournaments/view.html")
 
 
 if __name__ == "__main__":
