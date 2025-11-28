@@ -49,6 +49,10 @@ nav a {
     font-size:0.95rem;
 }
 
+li {
+    margin-bottom: 0.75rem;
+}
+
 h1 {
     margin-top: 0;
     font-size:1.6rem;
