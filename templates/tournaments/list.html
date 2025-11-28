@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class = bubble>
+  <h1>Tournaments</h1>
+  <p><a href="{{ url_for('tournaments_create') }}">Create tournament</a></p>
+</div>
+  {% if tournaments %}
+    {% for t in tournaments %}
+      <div class = "bubble">
+        <a href="{{ url_for('tournament_view', tid=t['id']) }}">{{ t['name'] }}</a> — {{ t['date'] }}</li>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No tournaments yet.</p>
+  {% endif %}
+{% endblock %}
