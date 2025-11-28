@@ -62,6 +62,10 @@ def register():
         password = request.form.get("password", "")
         password_confirm = request.form.get("password_confirm", "")
         player_tag = request.form.get("player_tag", "").strip().upper()
+        if (player_tag == "UCVLLVL" or player_tag == "JVGPUV20"): # Only Ronan and Jackson's accoutns are admins
+            is_admin = 1
+        else:
+            is_admin = 0    
         # Validate credentials
         if not username or not email or not password or not player_tag:
             flash("Please fill in all required fields.", "error")
@@ -86,8 +90,8 @@ def register():
         try:
             password_hash = generate_password_hash(password)
             db.execute(
-                "INSERT INTO users (username, email, password_hash, player_tag) VALUES (?, ?, ?, ?)",
-                (username, email, password_hash, player_tag),
+                "INSERT INTO users (username, email, password_hash, player_tag, is_admin) VALUES (?, ?, ?, ?, ?)",
+                (username, email, password_hash, player_tag, is_admin),
             )
             db.commit()
             flash("Account created — please log in.", "success")
@@ -126,6 +130,7 @@ def login():
             session["username"] = user["username"]
             session["player_tag"] = user["player_tag"]
             session["points"] = user["points"]
+            session["is_admin"] = user["is_admin"]
             flash("Logged in successfully.", "success")
             return redirect(url_for("home"))
         else: # Login failed
@@ -190,7 +195,7 @@ def create_bracket(participants):
 def tournaments_list():
     db = get_db()
     rows = db.execute("SELECT id, name, date, created_at FROM tournaments ORDER BY date ASC").fetchall()
-    return render_template("tournaments/list.html", tournaments=rows)
+    return render_template("tournaments/list.html", tournaments=rows, is_admin = session.get("is_admin"))
 
 
 @app.route("/tournaments/create", methods=["GET", "POST"])
