@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class = "bubble">
+  <h1>{{ tournament['name'] }}</h1>
+  <p> {{ tournament['description'] }}</p>
+  <p> {{ tournament['date'] }}</p>
+  <p><a href="{{ url_for('tournaments_list') }}">Back to tournaments</a></p>
+</div>
+
+<form method="post">
+  <h2>Participants</h2>
+  <input type="hidden" name="action" value="add_participant">
+  <label>Name <input name="participant_name" required></label>
+  <label>Seed <input name="seed" size="4"></label>
+  <button type="submit">Add participant</button>
+  {% if participants %}
+  <ul>
+  {% for p in participants %}
+    <li>{{ p[1] }} {% if p[2] %}(seed {{ p[2] }}){% endif %}</li>
+  {% endfor %}
+  </ul>
+  <p><a href="{{ url_for('tournament_view', tid=tournament['id']) }}?generate=1">Generate bracket</a></p>
+  {% else %}
+    <p>No participants yet.</p>
+  {% endif %}
+</form>
+
+<div class = "bubble">
+  <h2>Matches</h2>
+  {% if rounds %}
+    {% for rnum, matches in rounds.items() %}
+      <h3>Round {{ rnum }}</h3>
+      <ul>
+      {% for m in matches %}
+        <li>
+          {% set p1 = (m['player1_id'] and (participants | selectattr('0','equalto', m['player1_id']) | list | first)) %}
+          {% set p2 = (m['player2_id'] and (participants | selectattr('0','equalto', m['player2_id']) | list | first)) %}
+          {{ p1[1] if p1 else 'TBD' }} vs {{ p2[1] if p2 else 'BYE' }} — score: {{ m['score1'] }}-{{ m['score2'] }}
+        </li>
+      {% endfor %}
+      </ul>
+    {% endfor %}
+  {% else %}
+    <p>No matches yet. Click Generate bracket to create initial matchups.</p>
+  {% endif %}
+  {% endblock %}
+</div>

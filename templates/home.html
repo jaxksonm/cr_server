@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class = "bubble">
+    <h1>Welcome{% if data %}, {{ data['name'] }}{% endif %}!</h1>
+    <p>
+        Welcome to the UNH Clash Royale Club (UNH CRC) website.  
+        <ul>
+            <li>We host biweekly Clash Royale tournaments in MUB XXX at X:XX P.M. on X-days!</li>
+            <ul>
+                <li>All are welcome and there is no entry fee!</li>
+                <li>Please double check the tournaments tab in case date, time, or locations change or a tournament is cancelled.</li>
+            </ul>
+            <li>Compete for prizes and rankings!</li>
+            <ul>
+                <li>Rank highly in tournaments to earn UNH CRC points and climb the leaderboard to become the best clasher at UNH!</li>
+                <li>The leaderboard resets every semester, and all players' points are set back to zero, but the #1 spot will earn a prize and a badge on their UNH CRC profile!</li>
+            </ul>
+            {% if not data %}
+            <li>You must register a UNH CRC account and log in to join tournaments.</li>
+            <ul>
+                <li>Provide your Clash Royale player tag when making a UNH CRC account, to sync it to your UNH CRC account.</li>
+                <li>You can find your player tag in your profile in Clash Royale under your username. It is of the form #XXXXXXX (do not include the '#').</li>
+            </ul>
+            {% endif %}
+        </ul>
+        <p class="muted">Questions? Email <a href="mailto:rdg1032@unh.edu">ronan.gleeson@unh.edu</a> or <a href="mailto:rdg1032@unh.edu">jackson.mcdonald@unh.edu</a></p>
+    </p>
+</div>
+
+{% endblock %}
