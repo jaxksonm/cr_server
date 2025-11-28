@@ -194,7 +194,7 @@ def create_bracket(participants):
 @app.route("/tournaments")
 def tournaments_list():
     db = get_db()
-    rows = db.execute("SELECT id, name, date, created_at FROM tournaments ORDER BY date ASC").fetchall()
+    rows = db.execute("SELECT id, name, description, date, location FROM tournaments ORDER BY date ASC").fetchall()
     return render_template("tournaments/list.html", tournaments=rows, is_admin = session.get("is_admin"))
 
 
@@ -204,10 +204,11 @@ def tournaments_create():
         return render_template("tournaments/create.html")
     else:
         name = request.form.get("name", "").strip()
-        date = request.form.get("date", "")
         description = request.form.get("description", "")
-        if not name or not date:
-            flash("Enter name and date.", "error")
+        date = request.form.get("date", "")
+        location = request.form.get("location", "")
+        if not name or not date or not location:
+            flash("Enter name, date, and description.", "error")
             return render_template("tournaments/create.html")
         if not description:
             description = "No description."
@@ -218,7 +219,7 @@ def tournaments_create():
         except:
             formatted_date = date
         db = get_db()
-        db.execute("INSERT INTO tournaments (name, description, date) VALUES (?, ?, ?)", (name, description, formatted_date))
+        db.execute("INSERT INTO tournaments (name, description, date, location) VALUES (?, ?, ?, ?)", (name, description, formatted_date, location))
         db.commit()
         flash("Tournament created.", "success")
         return redirect(url_for("tournaments_list"))
@@ -227,7 +228,7 @@ def tournaments_create():
 @app.route("/tournaments/<int:tid>", methods=["GET", "POST"])
 def tournament_view(tid):
     db = get_db()
-    tour = db.execute("SELECT id, name, description, date, created_at FROM tournaments WHERE id = ?", (tid,)).fetchone()
+    tour = db.execute("SELECT id, name, description, date, location FROM tournaments WHERE id = ?", (tid,)).fetchone()
     if not tour:
         flash("Tournament not found.", "error")
         return redirect(url_for("tournaments_list"))

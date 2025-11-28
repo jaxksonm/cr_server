@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS tournaments (
     name TEXT NOT NULL,
     description TEXT,
     date TEXT NOT NULL,
+    location text NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

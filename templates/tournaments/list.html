@@ -9,10 +9,11 @@
   {% if tournaments %}
     {% for t in tournaments %}
       <div class = "bubble">
-        <a href="{{ url_for('tournament_view', tid=t['id']) }}">{{ t['name'] }}</a> — {{ t['date'] }}</li>
+        <a href="{{ url_for('tournament_view', tid=t['id']) }}">{{ t['name'] }}</a> — {{ t['date'] }} in {{ t['location'] }}<br>
+        <p class = "muted">{{ t['description'] }}</p>
       </div>
     {% endfor %}
   {% else %}
-    <p>No tournaments yet.</p>
+    <p>No tournaments scheduled at the moment.</p>
   {% endif %}
 {% endblock %}
