@@ -37,19 +37,42 @@ def index():
 
 @app.route("/home")
 def home():
+    db = get_db()
+    recent_announcements = db.execute(
+        "SELECT username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC LIMIT 3"
+    ).fetchall()
     if not session.get("user_id"): # User not logged in
-        return render_template("home.html", data=None)
+        return render_template("home.html", data=None, recent_announcements=recent_announcements)
     else: # User logged in
         player_tag = session.get('player_tag')
         url = f"https://api.clashroyale.com/v1/players/%23{player_tag}"
         headers = {"Authorization": f"Bearer {API_KEY}"}
-        try:
+        try: # TODO: Remove unnecesary API calls, they really slow it down!!!!
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             data = response.json()
-            return render_template("home.html", data=data)
+            return render_template("home.html", data=data, recent_announcements=recent_announcements)
         except requests.RequestException as e:
-            return render_template("home.html", data=None)    
+            return render_template("home.html", data=None, recent_announcements=recent_announcements)    
+
+
+@app.route("/announcements", methods=["GET", "POST"])
+def announcements():
+    db = get_db()
+    if (request.method == "POST"):
+        username = session.get("username")
+        cr_username = session.get("cr_username")
+        announcement = request.form.get("announcement", "")
+        db.execute(
+                "INSERT INTO announcements (username, cr_username, announcement) VALUES (?, ?, ?)",
+                (username, cr_username, announcement),
+            )
+        db.commit()
+        flash("Announcement posted.", "success")
+    announcements = db.execute(
+        "SELECT username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC"
+    ).fetchall()
+    return render_template("announcements.html", announcements=announcements)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -390,6 +413,11 @@ def tournament_delete(tid):
         return redirect(url_for("tournament_view", tid=tid))
     flash("Tournament deleted.", "success")
     return redirect(url_for("tournaments_list"))
+
+
+@app.route("/tournaments/<int:tid>/end", methods=["POST"])
+def tournament_end(tid):
+    pass
 
 
 @app.route("/leaderboard")

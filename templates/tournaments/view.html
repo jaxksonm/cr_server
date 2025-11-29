@@ -59,6 +59,10 @@
     <p>Tournament hasn't started yet.</p>
   {% endif %}
   {% if session.get('is_admin') %}
+  <form method="post" action="{{ url_for('tournament_end', tid=tournament['id']) }}"
+        onsubmit="return confirm('Are you sure you want to end this tournament?');">
+    <button class="red" type="submit">End Tournament</button>
+  </form>
   <form method="post" action="{{ url_for('tournament_delete', tid=tournament['id']) }}"
         onsubmit="return confirm('Are you sure you want to delete this tournament?');">
     <button class="red" type="submit">Delete Tournament</button>

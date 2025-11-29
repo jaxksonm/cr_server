@@ -39,3 +39,11 @@ CREATE TABLE IF NOT EXISTS matches (
     winner_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS announcements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    cr_username TEXT,
+    announcement TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
