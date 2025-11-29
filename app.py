@@ -47,7 +47,7 @@ def home():
         player_tag = session.get('player_tag')
         url = f"https://api.clashroyale.com/v1/players/%23{player_tag}"
         headers = {"Authorization": f"Bearer {API_KEY}"}
-        try:
+        try: # TODO: Remove unnecesary API calls, they really slow it down!!!!
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             data = response.json()
