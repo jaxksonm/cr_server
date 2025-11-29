@@ -14,13 +14,15 @@ CREATE TABLE IF NOT EXISTS tournaments (
     name TEXT NOT NULL,
     description TEXT,
     date TEXT NOT NULL,
+    location text NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS participants (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tournament_id INTEGER NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL UNIQUE,
+    user_id INTEGER NOT NULL,
     seed INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

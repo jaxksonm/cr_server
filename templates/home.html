@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class = "bubble">
-    <h1>Welcome{% if data %}, {{ data['name'] }}{% endif %}!</h1>
+    <h1>Welcome{% if session.get("username") %}, {{ session.get("username") }}{% endif %}!</h1>
     <p>
         Welcome to the UNH Clash Royale Club (UNH CRC) website.  
         <ul>

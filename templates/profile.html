@@ -2,12 +2,16 @@
 {% block content %}
 
 <div class = "bubble">
-    <h1>{{ data['name'] }}</h1>
-    <p>Player Tag: #{{ player_tag }}</p>
-    <p>UNH CRC Points: {{ points }}</p>
+    <h1>{{ session.get("username") }} // {{ data['name'] }}</h1>
+    <p>Player Tag: #{{ session.get('player_tag') }}</p>
+    <p>UNH CRC Points: {{ session.get('points') }}</p>
     <p>Trophies: {{ data['trophies'] }}</p>
     <p>Highest Trophies: {{ data['bestTrophies'] }}</p>
     <p>Clan: {{ data['clan']['name'] if data.get('clan') else 'None' }}</p>
+    <form method="post" action="{{ url_for('profile_delete') }}"
+      onsubmit="return confirm('Are you SURE you want to delete your profile?');">
+    <button class="red" type="submit">Delete Profile</button>
+</form>
 </div>
 
 {% endblock %}

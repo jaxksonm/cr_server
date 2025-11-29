@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (msgs.length) {
     setTimeout(() => {
       msgs.forEach(m => m.style.display = "none");
-    }, 4000);
+    }, 5000);
   }
 
   // Confirm passwords TODO: Could just do in Python
