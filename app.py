@@ -143,17 +143,47 @@ def profile():
     if not session.get("user_id"): # Cannot see profile unless logged in
         flash("Please log in to see profile.", "error")
         return redirect(url_for("login"))
-    tag = session.get('player_tag')
-    points = session.get('points')
-    url = f"https://api.clashroyale.com/v1/players/%23{tag}"
+    url = f"https://api.clashroyale.com/v1/players/%23{session.get('player_tag')}"
     headers = {"Authorization": f"Bearer {API_KEY}"}
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
-        return render_template("profile.html", data=data, player_tag=tag, points=points) # TODO: is player tag included in data?
+        return render_template("profile.html", data=data)
     except requests.RequestException as e:
-        return render_template("profile.html", data=None, player_tag=tag, points=points)    
+        flash("Unable to access Clash Royale API using player tag", "error")
+        return render_template("profile.html", data=None)
+
+
+@app.route("/profile/delete", methods=["POST"])
+def profile_delete():
+    if not session.get("user_id"):
+        flash("Please log in to delete profile.", "error")
+        return redirect(url_for("login"))
+    uid = session["user_id"]
+    db = get_db()
+    try:
+        # 1. Find participant ids linked to this user (supports multiple in case we want to allow joining multiple tournaments)
+        p_rows = db.execute("SELECT id FROM participants WHERE user_id = ?", (uid,)).fetchall()
+        pids = [r["id"] for r in p_rows]
+        # 2. Delete matches that reference those participant ids
+        if pids:
+            for pid in pids:
+                db.execute("DELETE FROM matches WHERE player1_id = ? OR player2_id = ?", (pid, pid))
+        # 3. Delete participant rows for this user
+        db.execute("DELETE FROM participants WHERE user_id = ?", (uid,))
+        # 4. Delete the user row
+        db.execute("DELETE FROM users WHERE id = ?", (uid,))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        app.logger.exception("Error deleting profile for user %s: %s", uid, e)
+        flash("Could not delete profile. Contact an admin.", "error")
+        return redirect(url_for("profile"))
+    # 5. Clear session and redirect to home
+    session.clear()
+    flash("Your profile was deleted.", "success")
+    return redirect(url_for("home"))
 
 
 @app.route("/logout")
@@ -164,29 +194,26 @@ def logout():
 
 
 def create_bracket(participants):
-    # sort by seed (0 means unspecified -> lowest priority)
+    # Sort by seed (0 means unspecified -> lowest priority)
     participants_sorted = sorted(participants, key=lambda p: (p[2] if p[2] is not None else 9999))
     ids = [p[0] for p in participants_sorted]
     n = len(ids)
     if n == 0:
         return []
-
     # Next power of two
     next_pow2 = 1 << (ceil(log2(n)))
     byes = next_pow2 - n
-
     # Simple seeding pairing: pair highest with lowest, etc.
     # Create initial bracket slots of length next_pow2 with byes as None
     slots = ids[:] + [None] * byes
-
-    # initial round pairings
+    # Initial round pairings
     pairs = []
     while len(slots) > 1:
         new_pairs = []
         for i in range(0, len(slots), 2):
             new_pairs.append((slots[i], slots[i+1] if i+1 < len(slots) else None))
         pairs.append(new_pairs)
-        # winners placeholders for next round: use None placeholders
+        # Winners placeholders for next round: use None placeholders
         slots = [None] * (len(new_pairs))
     return pairs
 
@@ -194,20 +221,21 @@ def create_bracket(participants):
 @app.route("/tournaments")
 def tournaments_list():
     db = get_db()
-    rows = db.execute("SELECT id, name, date, created_at FROM tournaments ORDER BY date ASC").fetchall()
-    return render_template("tournaments/list.html", tournaments=rows, is_admin = session.get("is_admin"))
+    rows = db.execute("SELECT id, name, description, date, location FROM tournaments ORDER BY date ASC").fetchall()
+    return render_template("tournaments/list.html", tournaments=rows)
 
 
 @app.route("/tournaments/create", methods=["GET", "POST"])
 def tournaments_create():
-    if request.method == "GET":
+    if request.method == "GET": # Serve form
         return render_template("tournaments/create.html")
-    else:
+    else: # On form submit
         name = request.form.get("name", "").strip()
-        date = request.form.get("date", "")
         description = request.form.get("description", "")
-        if not name or not date:
-            flash("Enter name and date.", "error")
+        date = request.form.get("date", "")
+        location = request.form.get("location", "")
+        if not name or not date or not location:
+            flash("Enter name, date, and description.", "error")
             return render_template("tournaments/create.html")
         if not description:
             description = "No description."
@@ -218,42 +246,99 @@ def tournaments_create():
         except:
             formatted_date = date
         db = get_db()
-        db.execute("INSERT INTO tournaments (name, description, date) VALUES (?, ?, ?)", (name, description, formatted_date))
+        db.execute("INSERT INTO tournaments (name, description, date, location) VALUES (?, ?, ?, ?)", (name, description, formatted_date, location))
         db.commit()
         flash("Tournament created.", "success")
         return redirect(url_for("tournaments_list"))
 
 
-@app.route("/tournaments/<int:tid>", methods=["GET", "POST"])
-def tournament_view(tid):
+@app.route("/tournaments/<int:tid>/join", methods=["POST"])
+def tournament_join(tid):
+    if not session.get("user_id"):
+        flash("Please log in to join a tournament.", "error")
+        return redirect(url_for("login"))
     db = get_db()
-    tour = db.execute("SELECT id, name, description, date, created_at FROM tournaments WHERE id = ?", (tid,)).fetchone()
+    user_id = session["user_id"]
+    # Ensure tournament exists
+    tour = db.execute("SELECT id FROM tournaments WHERE id = ?", (tid,)).fetchone()
     if not tour:
         flash("Tournament not found.", "error")
         return redirect(url_for("tournaments_list"))
-    # Add participant
-    if request.method == "POST" and request.form.get("action") == "add_participant":
-        pname = request.form.get("participant_name", "").strip()
-        pseed = request.form.get("seed", "").strip()
-        seed_val = int(pseed) if pseed.isdigit() else None
-        if pname:
-            db.execute("INSERT INTO participants (tournament_id, name, seed) VALUES (?, ?, ?)", (tid, pname, seed_val))
-            db.commit()
-            flash("Participant added.", "success")
-            return redirect(url_for("tournament_view", tid=tid))
-        else:
-            flash("Participant name required.", "error")
-            return redirect(url_for("tournament_view", tid=tid))
-    # Generate bracket
-    parts = db.execute("SELECT id, name, seed FROM participants WHERE tournament_id = ? ORDER BY seed ASC, id ASC", (tid,)).fetchall()
-    participants = [(r["id"], r["name"], r["seed"]) for r in parts]
-    # If user requested to auto-generate initial matches:
+    # Prevent joining same tournament twice
+    existing = db.execute(
+        "SELECT id FROM participants WHERE tournament_id = ? AND user_id = ?",
+        (tid, user_id)
+    ).fetchone()
+    if existing:
+        flash("You have already joined this tournament.", "info")
+        return redirect(url_for("tournament_view", tid=tid))
+    # Insert participant using session username (fallback to user_id)
+    name = session.get("username") or f"user{user_id}" # TODO: Change to in-game username?
+    try: 
+        db.execute(
+            "INSERT INTO participants (tournament_id, name, seed, user_id) VALUES (?, ?, ?, ?)",
+            (tid, name, None, user_id)
+        )
+        db.commit()
+    except sqlite3.IntegrityError as e:
+        flash("You can only be in one tournament at once, please leave the other tournament to join this one.", "error")
+        return redirect(url_for("tournament_view", tid=tid))
+    flash("You have joined the tournament.", "success")
+    return redirect(url_for("tournament_view", tid=tid))
+
+
+@app.route("/tournaments/<int:tid>/leave", methods=["POST"])
+def tournament_leave(tid):
+    if not session.get("user_id"):
+        flash("Please log in to leave a tournament.", "error")
+        return redirect(url_for("login"))
+    db = get_db()
+    user_id = session["user_id"]
+    # Ensure tournament exists
+    tour = db.execute("SELECT id FROM tournaments WHERE id = ?", (tid,)).fetchone()
+    if not tour:
+        flash("Tournament not found.", "error")
+        return redirect(url_for("tournaments_list"))
+    # Find the participant row for user and tournament
+    participant = db.execute(
+        "SELECT id FROM participants WHERE tournament_id = ? AND user_id = ?",
+        (tid, user_id)
+    ).fetchone()
+    if not participant:
+        flash("You are not a participant in this tournament.", "info")
+        return redirect(url_for("tournament_view", tid=tid))
+    # Delete the participant row
+    db.execute("DELETE FROM participants WHERE id = ?", (participant["id"],))
+    db.commit()
+    flash("You have left the tournament.", "success")
+    return redirect(url_for("tournament_view", tid=tid))
+
+
+@app.route("/tournaments/<int:tid>", methods=["GET", "POST"])
+def tournament_view(tid):
+    db = get_db()
+    tour = db.execute("SELECT id, name, description, date, location FROM tournaments WHERE id = ?", (tid,)).fetchone()
+    if not tour:
+        flash("Tournament not found.", "error")
+        return redirect(url_for("tournaments_list"))
+    # Load participants
+    part_rows = db.execute(
+        "SELECT id, name, seed, user_id FROM participants WHERE tournament_id = ? ORDER BY seed ASC",
+        (tid,)
+    ).fetchall()
+    participants = [(r["id"], r["name"], r["seed"], r["user_id"]) for r in part_rows]
+    # Determine whether current user has joined
+    joined = False
+    current_user_id = session.get("user_id")
+    if current_user_id:
+        for r in part_rows:
+            if r["user_id"] == current_user_id:
+                joined = True
+                break
+    # Generate bracket if requested
     if request.args.get("generate") == "1":
-        # delete existing matches for this tournament to regenerate
         db.execute("DELETE FROM matches WHERE tournament_id = ?", (tid,))
-        # create initial pairings
-        rounds = create_bracket(participants)
-        # rounds is list of rounds; we will only insert round 1 pairings
+        rounds = create_bracket([(r[0], r[1], r[2]) for r in participants])
         if rounds:
             round1 = rounds[0]
             for p1, p2 in round1:
@@ -269,7 +354,40 @@ def tournament_view(tid):
     rounds = {}
     for m in match_rows:
         rounds.setdefault(m["round"], []).append(m)
-    return render_template("tournaments/view.html", tournament=tour, participants=participants, rounds=rounds)
+    return render_template("tournaments/view.html",
+                           tournament=tour,
+                           participants=participants,
+                           rounds=rounds,
+                           joined=joined)
+
+
+@app.route("/tournaments/<int:tid>/delete", methods=["POST"])
+def tournament_delete(tid):
+    # Check admin
+    if not session.get("is_admin"):
+        flash("Admin privileges required to delete tournaments.", "error")
+        return redirect(url_for("tournament_view", tid=tid))
+    db = get_db()
+    # Ensure tournament exists
+    tour = db.execute("SELECT id FROM tournaments WHERE id = ?", (tid,)).fetchone()
+    if not tour:
+        flash("Tournament not found.", "error")
+        return redirect(url_for("tournaments_list"))
+    try:
+        # Delete matches for tournament
+        db.execute("DELETE FROM matches WHERE tournament_id = ?", (tid,))
+        # Delete participants for tournament
+        db.execute("DELETE FROM participants WHERE tournament_id = ?", (tid,))
+        # Delete tournament
+        db.execute("DELETE FROM tournaments WHERE id = ?", (tid,))
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        app.logger.exception("Error deleting tournament %s: %s", tid, e)
+        flash("Could not delete tournament. Contact an admin.", "error")
+        return redirect(url_for("tournament_view", tid=tid))
+    flash("Tournament deleted.", "success")
+    return redirect(url_for("tournaments_list"))
 
 
 if __name__ == "__main__":

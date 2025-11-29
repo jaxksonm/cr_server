@@ -2,17 +2,21 @@
 {% block content %}
 <div class = bubble>
   <h1>Tournaments</h1>
-  {% if is_admin %}
+  {% if session.get("is_admin") %}
   <p><a href="{{ url_for('tournaments_create') }}">Create tournament</a></p>
   {% endif %}
 </div>
   {% if tournaments %}
     {% for t in tournaments %}
       <div class = "bubble">
-        <a href="{{ url_for('tournament_view', tid=t['id']) }}">{{ t['name'] }}</a> — {{ t['date'] }}</li>
+        <h1><a href="{{ url_for('tournament_view', tid=t['id']) }}">{{ t['name'] }}</a></h1>
+        <p>{{ t['date'] }} in {{ t['location'] }}</p>
+        <p class = "muted">{{ t['description'] }}</p>
       </div>
     {% endfor %}
   {% else %}
-    <p>No tournaments yet.</p>
+  <div class = "bubble">
+        <p>No tournaments scheduled at the moment.</p>
+  </div>
   {% endif %}
 {% endblock %}

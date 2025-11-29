@@ -2,24 +2,45 @@
 {% block content %}
 <div class = "bubble">
   <h1>{{ tournament['name'] }}</h1>
-  <p> {{ tournament['description'] }}</p>
-  <p> {{ tournament['date'] }}</p>
+  <p> {{ tournament['date'] }} in {{ tournament['location'] }}</p>
+  <p class = "muted"> {{ tournament['description'] }}</p>
+  
+{% if session.get('user_id') %}
+  {% if not joined %}
+    <form method="post"
+      action="{{ url_for('tournament_join', tid=tournament['id']) }}">
+      <button type="submit">Join Tournament</button>
+    </form>
+  {% else %}
+    <form method="post"
+      action="{{ url_for('tournament_leave', tid=tournament['id']) }}"
+      onsubmit="return confirm('Are you sure you want to leave this tournament?');">
+    <button type="submit">Leave Tournament</button>
+</form>
+  {% endif %}
+{% else %}
+  <p><a href="{{ url_for('login') }}">Log in</a> to join the tournament.</p>
+{% endif %}
+{% if session.get('is_admin') %}
+  <form method="post" action="{{ url_for('tournament_delete', tid=tournament['id']) }}"
+        onsubmit="return confirm('Delete this tournament and all associated participants and matches? This action cannot be undone.');">
+    <button class="red" type="submit">Delete Tournament</button>
+  </form>
+{% endif %}
   <p><a href="{{ url_for('tournaments_list') }}">Back to tournaments</a></p>
 </div>
 
-<form method="post">
+<form class = "bubble" method="post">
   <h2>Participants</h2>
-  <input type="hidden" name="action" value="add_participant">
-  <label>Name <input name="participant_name" required></label>
-  <label>Seed <input name="seed" size="4"></label>
-  <button type="submit">Add participant</button>
+  {% if session.get("is_admin") %}
+  <p><a href="{{ url_for('tournament_view', tid=tournament['id']) }}?generate=1">Generate bracket</a></p>
+  {% endif %}
   {% if participants %}
   <ul>
   {% for p in participants %}
     <li>{{ p[1] }} {% if p[2] %}(seed {{ p[2] }}){% endif %}</li>
   {% endfor %}
   </ul>
-  <p><a href="{{ url_for('tournament_view', tid=tournament['id']) }}?generate=1">Generate bracket</a></p>
   {% else %}
     <p>No participants yet.</p>
   {% endif %}
@@ -41,7 +62,8 @@
       </ul>
     {% endfor %}
   {% else %}
-    <p>No matches yet. Click Generate bracket to create initial matchups.</p>
+    <p>Tournament hasn't started yet.</p>
   {% endif %}
+  </div>
+
   {% endblock %}
-</div>
