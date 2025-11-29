@@ -126,3 +126,18 @@ button {
 .tournament .round {
   border-left:1px solid #ddd; padding-left:1rem;
 }
+
+table.leaderboard { 
+  border-collapse: collapse; width: 100%; max-width: 720px;
+}
+
+table.leaderboard th {
+  text-align: left; border-bottom: 2px solid #ccc;
+}
+
+table.leaderboard td {
+  border-bottom: 1px solid #eee;
+}
+
+table.leaderboard tr.you { background: #fff7d6;
+}

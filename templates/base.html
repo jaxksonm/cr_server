@@ -12,12 +12,12 @@
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-image">
         UNH Clash Royale Club</a>
       <nav>
+        <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
+        <a href="{{ url_for('tournaments_list') }}">Tournaments</a>
         {% if session.get('user_id') %}
-          <a href="{{ url_for('tournaments_list') }}">Tournaments</a>
           <a href="{{ url_for('profile') }}">Profile</a>
           <a href="{{ url_for('logout') }}">Logout</a>
         {% else %}
-          <a href="{{ url_for('tournaments_list') }}">Tournaments</a>
           <a href="{{ url_for('register') }}">Register</a>
           <a href="{{ url_for('login') }}">Login</a>
         {% endif %}

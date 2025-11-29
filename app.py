@@ -85,13 +85,14 @@ def register():
         except requests.RequestException as e:
             flash("Enter valid player tag.", "error")
             return render_template("register.html")  
+        cr_username = data["name"]
         # Add account to database
         db = get_db()
         try:
             password_hash = generate_password_hash(password)
             db.execute(
-                "INSERT INTO users (username, email, password_hash, player_tag, is_admin) VALUES (?, ?, ?, ?, ?)",
-                (username, email, password_hash, player_tag, is_admin),
+                "INSERT INTO users (username, email, password_hash, cr_username, player_tag, is_admin) VALUES (?, ?, ?, ?, ?, ?)",
+                (username, email, password_hash, cr_username, player_tag, is_admin),
             )
             db.commit()
             flash("Account created — please log in.", "success")
@@ -128,6 +129,7 @@ def login():
             session.clear()
             session["user_id"] = user["id"]
             session["username"] = user["username"]
+            session["cr_username"] = user["cr_username"]
             session["player_tag"] = user["player_tag"]
             session["points"] = user["points"]
             session["is_admin"] = user["is_admin"]
@@ -388,6 +390,35 @@ def tournament_delete(tid):
         return redirect(url_for("tournament_view", tid=tid))
     flash("Tournament deleted.", "success")
     return redirect(url_for("tournaments_list"))
+
+
+@app.route("/leaderboard")
+def leaderboard():
+    # Get top ten
+    db = get_db()
+    top_rows = db.execute(
+        "SELECT username, cr_username, player_tag, points FROM users ORDER BY points DESC LIMIT 10"
+    ).fetchall()
+    # Convert to dicts and assign rank (ties share rank)
+    top = []
+    for player in top_rows:
+        rank_row = db.execute("SELECT COUNT(*) AS cnt FROM users WHERE points > ?", (session.get("points"),)).fetchone()
+        rank = rank_row["cnt"] + 1
+        top.append({"rank": rank, "username": player["username"], "cr_username": player["cr_username"], "player_tag": player["player_tag"], "points": player["points"]})
+    # Get current user's ranking
+    current_user = None
+    user_row = None
+    user_id = session.get("user_id")
+    if user_id:
+        rank_row = db.execute("SELECT COUNT(*) AS cnt FROM users WHERE points > ?", (session.get("points"),)).fetchone()
+        rank = rank_row["cnt"] + 1
+        current_user = {"rank": rank, "username": session.get("username"), "cr_username": session.get("cr_username"), "player_tag": session.get("player_tag"), "points": session.get("points")}
+    return render_template(
+        "leaderboard.html",
+        top=top,
+        you=current_user,
+    )
+    return render_template("leaderboard.html")    
 
 
 if __name__ == "__main__":
