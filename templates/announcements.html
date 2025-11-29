@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="bubble">
+    <h1>Announcements</h1>
+    {% if session.get("is_admin") %}
+        <form method="POST">
+            <textarea name="announcement" required></textarea>
+            <button type="submit">Post</button>
+        </form>
+    {% endif %}
+    {% if announcements %}
+    {% for announcement in announcements %}
+        <h3>{{ announcement.username }} // {{ announcement.cr_username }} -- {{ announcement.created_at }}</h3>
+        <p>{{ announcement.announcement }}</p>
+    {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}
