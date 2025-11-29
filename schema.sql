@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
+    cr_username TEXT NOT NULL,
     player_tag TEXT NOT NULL UNIQUE,
     points INTEGER DEFAULT 0,
     is_admin INTEGER DEFAULT 0,
