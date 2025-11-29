@@ -390,6 +390,11 @@ def tournament_delete(tid):
     return redirect(url_for("tournaments_list"))
 
 
+@app.route("/leaderboard")
+def leaderboard():
+    return render_template("leaderboard.html")    
+
+
 if __name__ == "__main__":
     if not DATABASE.exists():
         print("Database not found. Initialize with: python init_db.py")
