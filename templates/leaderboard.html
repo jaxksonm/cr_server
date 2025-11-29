@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<div class = "bubble">
+<h1>Leaderboard — Top 10</h1>
+
+<table class="leaderboard" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Player</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if top %}
+      {% for row in top %}
+        <tr {% if row["player_tag"] == session.get("player_tag") %}class="you"{% endif %}>
+          <td>{{ row.rank }}</td>
+          <td>
+            {{ row.username }} // {{row.cr_username}}
+            {% if row.player_tag == session.get("player_tag") %} <strong>(you)</strong>{% endif %}
+          </td>
+          <td>{{ row.points }}</td>
+        </tr>
+      {% endfor %}
+    {% else %}
+      <tr><td colspan="3">No players yet.</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+
+{% if you %}
+  <hr>
+  <h3>Your position</h3>
+  <table class="leaderboard" cellpadding="6" cellspacing="0">
+    <thead>
+    <tr>
+      <th>#</th>
+      <th>Player</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+    <tbody>
+      <tr class="you">
+        <td>{{ you.rank }}</td>
+        <td>{{ you.username }} // {{ you.cr_username }} <strong>(you)</strong></td>
+        <td>{{ you.points }}</td>
+      </tr>
+    </tbody>
+  </table>
+{% endif %}
+</div>
+
+{% endblock %}
