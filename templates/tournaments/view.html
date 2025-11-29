@@ -8,15 +8,13 @@
 {% if session.get('user_id') %}
   {% if not joined %}
     <form method="post"
-      action="{{ url_for('tournament_join', tid=tournament['id']) }}"
-      style="display:inline;">
+      action="{{ url_for('tournament_join', tid=tournament['id']) }}">
       <button type="submit">Join Tournament</button>
     </form>
   {% else %}
     <form method="post"
       action="{{ url_for('tournament_leave', tid=tournament['id']) }}"
-      onsubmit="return confirm('Are you sure you want to leave this tournament?');"
-      style="display:inline;">
+      onsubmit="return confirm('Are you sure you want to leave this tournament?');">
     <button type="submit">Leave Tournament</button>
 </form>
   {% endif %}
@@ -25,8 +23,7 @@
 {% endif %}
 {% if session.get('is_admin') %}
   <form method="post" action="{{ url_for('tournament_delete', tid=tournament['id']) }}"
-        onsubmit="return confirm('Delete this tournament and all associated participants and matches? This action cannot be undone.');"
-        style="display:inline;">
+        onsubmit="return confirm('Delete this tournament and all associated participants and matches? This action cannot be undone.');">
     <button class="red" type="submit">Delete Tournament</button>
   </form>
 {% endif %}
