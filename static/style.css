@@ -58,14 +58,6 @@ h1 {
     font-size:1.6rem;
 }
 
-form {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.03);
-    margin-bottom: 0.75rem;
-}
-
 .bubble {
   background: white;
     padding: 1rem;
@@ -103,6 +95,10 @@ button {
     color: var(--muted);
     font-size:0.95rem;
     margin-top: 0.75rem;
+}
+
+.red {
+  background: red;
 }
 
 .flash {
