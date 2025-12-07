@@ -12,6 +12,12 @@
     {% for announcement in announcements %}
         <h3>{{ announcement.username }} // {{ announcement.cr_username }} -- {{ announcement.created_at }}</h3>
         <p>{{ announcement.announcement }}</p>
+        {% if session.get("is_admin") %}
+            <form method="POST" action="{{ url_for('announcement_delete', aid=announcement.id) }}"
+                onsubmit="return confirm('Are you sure you want to delete this announcement?');">
+                <button type="submit" class="red">Delete</button>
+            </form>
+        {% endif %}
     {% endfor %}
     {% endif %}
 </div>

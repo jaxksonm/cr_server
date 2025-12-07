@@ -12,7 +12,8 @@ DATABASE = BASE_DIR / "users.db"
 app = Flask(__name__)
 app.secret_key = "key" # TODO: Get secret key
 
-API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjBkMWI4YmYxLWYyNzAtNGZmNy1iOTlhLWFmZjFhNTRjMDg5OCIsImlhdCI6MTc2NDI1NzQyMSwic3ViIjoiZGV2ZWxvcGVyL2Y3YjA5OWM3LTViZmItNDJhOC1mYzUzLTUzNWRjODI4NTJiMCIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI3My4xMjYuMTQyLjExIl0sInR5cGUiOiJjbGllbnQifV19.zNv5pei5V-J_q7QzrLVCRhiC4GACsWIktZ8V43ruv9RUvJkTyi7fCAmsHaqLM75cC3bVXOtRuRerc5N9HGUIoA"
+# API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjBkMWI4YmYxLWYyNzAtNGZmNy1iOTlhLWFmZjFhNTRjMDg5OCIsImlhdCI6MTc2NDI1NzQyMSwic3ViIjoiZGV2ZWxvcGVyL2Y3YjA5OWM3LTViZmItNDJhOC1mYzUzLTUzNWRjODI4NTJiMCIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI3My4xMjYuMTQyLjExIl0sInR5cGUiOiJjbGllbnQifV19.zNv5pei5V-J_q7QzrLVCRhiC4GACsWIktZ8V43ruv9RUvJkTyi7fCAmsHaqLM75cC3bVXOtRuRerc5N9HGUIoA"
+API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImZjMDFkNDdiLTYwZmUtNGZmOC1iZmVjLThjZGM0OGQzZmM0NCIsImlhdCI6MTc2NTA3MzUzMSwic3ViIjoiZGV2ZWxvcGVyL2Y3YjA5OWM3LTViZmItNDJhOC1mYzUzLTUzNWRjODI4NTJiMCIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxMzIuMTc3LjIzOC43MiJdLCJ0eXBlIjoiY2xpZW50In1dfQ.LVbNCw8FAlZ6nYMADsdwyasFKV4HNhyz60voutMGaD-2fedQJjoXHLOZWQ_QiCOJhFZKMrBbbCK8ss6biktgIQ"
 
 # Connect to database
 def get_db():
@@ -39,7 +40,7 @@ def index():
 def home():
     db = get_db()
     recent_announcements = db.execute(
-        "SELECT username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC LIMIT 3"
+        "SELECT id, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC LIMIT 3"
     ).fetchall()
     if not session.get("user_id"): # User not logged in
         return render_template("home.html", data=None, recent_announcements=recent_announcements)
@@ -70,9 +71,27 @@ def announcements():
         db.commit()
         flash("Announcement posted.", "success")
     announcements = db.execute(
-        "SELECT username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC"
+        "SELECT id, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC"
     ).fetchall()
     return render_template("announcements.html", announcements=announcements)
+
+
+@app.route("/announcements/delete/<int:aid>", methods=["POST"])
+def announcement_delete(aid):
+    if not session.get("is_admin"):
+        flash("Only admins can delete announcements.", "error")
+        return redirect(url_for("announcements"))
+    db = get_db()
+    try:
+        db.execute("DELETE FROM announcements WHERE id = ?", (aid,))
+        db.commit()
+        flash("Announcement deleted.", "success")
+        return redirect(url_for("announcements"))
+    except Exception as e:
+        db.rollback()
+        app.logger.exception("Error deleting announcement")
+        flash("Could not delete announcement.", "error")
+        return redirect(url_for("announcements"))
 
 
 @app.route("/register", methods=["GET", "POST"])
