@@ -11,6 +11,7 @@ body {
   background: #f7f7f8;
   background-image: url('/static/cr_background.jpg');
   background-size: contain;
+  background-attachment: fixed;
   line-height: 1.4;
 }
 
