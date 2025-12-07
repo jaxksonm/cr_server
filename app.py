@@ -230,6 +230,109 @@ def profile_delete():
     return redirect(url_for("home"))
 
 
+@app.route("/profile/edit", methods=["GET", "POST"])
+def profile_edit():
+    if not session.get("user_id"):
+        flash("Please log in to edit your profile.", "error")
+        return redirect(url_for("login"))
+    db = get_db()
+    uid = session["user_id"]
+    # Fetch user
+    user = db.execute(
+        "SELECT id, username, email, player_tag FROM users WHERE id = ?",
+        (uid,)
+    ).fetchone()
+    if not user:
+        flash("User not found.", "error")
+        return redirect(url_for("logout"))
+    current_username = user["username"]
+    current_email = user["email"]
+    current_player_tag = user["player_tag"]
+    if request.method == "GET":
+        return render_template(
+            "profile_edit.html",
+            username=current_username,
+            email=current_email,
+            player_tag=current_player_tag,
+        )
+    # Get new username/email.pass
+    form_username = request.form.get("username", "").strip()
+    form_email = request.form.get("email", "").strip().lower()
+    form_current_password = request.form.get("current_password", "")
+    form_new_password = request.form.get("new_password", "")
+    form_new_password_confirm = request.form.get("new_password_confirm", "")
+    # Validate
+    change_password = False
+    new_hash = None
+    if form_new_password or form_new_password_confirm:
+        if not form_current_password:
+            flash("Enter your current password to change your password.", "error")
+            return render_template(
+                "profile_edit.html",
+                username=form_username,
+                email=form_email,
+                player_tag=current_player_tag,
+            )
+        if form_new_password != form_new_password_confirm:
+            flash("New passwords do not match.", "error")
+            return render_template(
+                "profile_edit.html",
+                username=form_username,
+                email=form_email,
+                player_tag=current_player_tag,
+            )
+        row = db.execute(
+            "SELECT password_hash FROM users WHERE id = ?",
+            (uid,)
+        ).fetchone()
+        if not check_password_hash(row["password_hash"], form_current_password):
+            flash("Current password is incorrect.", "error")
+            return render_template(
+                "profile_edit.html",
+                username=form_username,
+                email=form_email,
+                player_tag=current_player_tag,
+            )
+        new_hash = generate_password_hash(form_new_password)
+        change_password = True
+    # Update database
+    try:
+        if form_username != "":
+            db.execute(
+                "UPDATE users SET username = ? WHERE id = ?",
+                (form_username, uid),
+            )
+            session["username"] = form_username
+        if form_email != "":
+            db.execute(
+                "UPDATE users SET email = ? WHERE id = ?",
+                (form_email, uid),
+            )
+        if change_password:
+            db.execute(
+                "UPDATE users SET password_hash = ? WHERE id = ?",
+                (new_hash, uid),
+            )
+        db.commit()
+    except sqlite3.IntegrityError as e:
+        msg = str(e).lower()
+        if "username" in msg:
+            flash("Username already taken.", "error")
+        elif "email" in msg:
+            flash("Email already registered.", "error")
+        else:
+            flash("An error occurred while updating your profile.", "error")
+        return render_template(
+            "edit_profile.html",
+            username=form_username,
+            email=form_email,
+            player_tag=current_player_tag,
+        )
+    # Update session
+    flash("Profile updated.", "success")
+    return redirect(url_for("profile"))
+
+
 @app.route("/logout")
 def logout():
     session.clear()
