@@ -9,6 +9,8 @@ body {
   margin: 0;
   color: #111;
   background: #f7f7f8;
+  background-image: url('/static/cr_background.jpg');
+  background-size: contain;
   line-height: 1.4;
 }
 
