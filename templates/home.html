@@ -29,8 +29,10 @@
 <div class="bubble">
     <h1>Announcements</h1>
     {% for announcement in recent_announcements %}
+    <div class="nested-bubble">
         <h3>{{ announcement.username }} // {{ announcement.cr_username }} -- {{ announcement.created_at }}</h3>
         <p>{{ announcement.announcement }}</p>
+    </div>   
     {% endfor %}
     <p><a href="{{ url_for('announcements') }}">View all announcements</a></p>
 </div>
