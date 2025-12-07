@@ -1,15 +1,29 @@
 :root {
   --maxw: 720px;
   --muted: #666;
+  --board-bg: #8a5a2d;
+  --board-mid: #bd7c44;
+  --board-highlight: #e3b37a;
+  --paper-bg: #f7eddc;
+  --paper-ink: #2b2b2b;
+  --nail: #c9c9c9;
+  --shadow: 0 8px 20px rgba(18,12,8,0.35);
+  --soft-shadow: 0 4px 10px rgba(18,12,8,0.20);
+  --accent: #c86f3a;
+  --board-padding: 28px;
 }
 
 * { box-sizing: border-box; }
+
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   margin: 0;
   color: #111;
   background: #f7f7f8;
   line-height: 1.4;
+  background-image: url('/static/cr_background.jpg');
+  background-size: contain;
+  background-attachment: fixed;
 }
 
 .container {
@@ -58,37 +72,6 @@ h1 {
   font-size:1.6rem;
 }
 
-.bubble {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
-  margin-bottom: 0.75rem;
-}
-
-.nested-bubble {
-  background: #f7f7f8;;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
-  margin-bottom: 0.75rem;
-}
-
-label {
-  display:block;
-  margin-bottom: 0.75rem;
-  font-size:0.95rem;
-}
-
-label input {
-  display:block;
-  width:100%;
-  padding: 0.5rem;
-  margin-top: 0.25rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-}
-
 button {
   margin-top: 0.5rem;
   padding: 0.6rem 0.9rem;
@@ -99,14 +82,14 @@ button {
   cursor: pointer;
 }
 
+.red {
+  background: red;
+}
+
 .muted {
   color: var(--muted);
   font-size:0.95rem;
   margin-top: 0.75rem;
-}
-
-.red {
-  background: red;
 }
 
 .flash {
@@ -154,4 +137,205 @@ table.leaderboard tr.you {
 textarea {
   height: 5rem;
   width: 100%;
+}
+
+.bubble{
+  width: min(1100px, 92%);
+  margin: 28px auto;
+  padding: calc(var(--board-padding) + 8px);
+  position: relative;
+  display: block;
+  overflow: visible;
+  background-color: var(--board-mid);
+  border-radius: 18px;
+  border: 8px solid rgba(0,0,0,0.18);
+  background:
+    linear-gradient(#c47a2c, #a8641f),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 14px),
+    repeating-linear-gradient(88deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 1px, transparent 1px, transparent 22px),
+    repeating-linear-gradient(92deg, rgba(0,0,0,0.055) 0px, rgba(0,0,0,0.055) 2px, transparent 2px, transparent 35px);
+  background-blend-mode: overlay;
+  box-shadow: var(--shadow);
+  font-family: "Luckiest Guy", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bubble::before{
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 12px;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.08), rgba(255,255,255,0.03)),
+    linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  box-shadow: inset 0 6px 16px rgba(0,0,0,0.18);
+  z-index: 0;
+}
+
+.bubble > h1{
+  margin: 0 0 12px 0;
+  font-size: 38px;
+  color: #fff;
+  text-shadow: 0 4px 0 rgba(0,0,0,0.55);
+  letter-spacing: 2px;
+  z-index: 2;
+  position: relative;
+  padding-left: 6px;
+  font-family: "Luckiest Guy", sans-serif;
+}
+
+.bubble::after{
+  content: "";
+  position: absolute;
+  top: -22px;
+  left: -28px;
+  width: calc(100% + 56px);
+  height: 30px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(255,255,255,0.03));
+  border-radius: 12px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nested-bubble{
+  margin: 18px auto;
+  max-width: 900px;
+  position: relative;
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fbf5e8 0%, #f0e5c8 100%);
+  border: 2px solid rgba(0,0,0,0.12);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+  transform-origin: top center;
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1);
+  display:block;
+  z-index: 3;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.nested-bubble::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  mix-blend-mode: multiply;
+  opacity: 0.6;
+}
+
+.nested-bubble h3{
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  color: #463a2a;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+  font-weight: 700;
+}
+
+.nested-bubble p{
+  margin: 0;
+  color: var(--paper-ink);
+  line-height: 1.45;
+  font-size: 14px;
+}
+
+.nested-bubble:hover{
+  transform: translateY(-6px) rotate(0deg);
+  box-shadow: 0 18px 36px rgba(0,0,0,0.26);
+}
+
+.pin{
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e9e9e9 12%, #c0c0c0 60%, #7a7a7a 100%);
+  border: 2px solid rgba(0,0,0,0.14);
+  top: 8px;
+  left: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  z-index: 6;
+}
+
+.pin.right{
+  left: auto;
+  right: 12px;
+}
+
+.pin::before{
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -6px;
+  width: 26px;
+  height: 6px;
+  background: linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.00));
+  border-radius: 6px;
+  filter: blur(0.5px);
+  opacity: 0.9;
+}
+
+.bubble form{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  margin-bottom: 12px;
+  z-index: 4;
+}
+
+.bubble textarea[name="announcement"]{
+  width: 100%;
+  min-height: 90px;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #fbf5e8 0%, #f0e5c8 100%);
+  border: 2px solid rgba(0,0,0,0.12);
+  box-shadow: var(--soft-shadow), inset 0 1px 0 rgba(255,255,255,0.6);
+  resize: vertical;
+  font-size: 14px;
+  color: var(--paper-ink);
+  font-family: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.bubble button {
+  background: linear-gradient(180deg, var(--board-highlight), var(--board-bg));
+  color: #fff;
+  border: 0;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.22);
+  cursor: pointer;
+  transform-origin: center;
+  z-index: 5;
+  font-family: "Luckiest Guy", sans-serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.bubble button:active{
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0,0,0,0.18);
+}
+
+.bubble button.red{
+  background: linear-gradient(180deg, #e35b4a, #c93c2b);
+  box-shadow: 0 4px 0 rgba(0,0,0,0.24);
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 640px){
+  .bubble{ padding: 18px; border-radius: 12px; }
+  .bubble>h1{ font-size: 28px; }
+  .nested-bubble{ padding: 10px; margin: 12px 0; }
 }

@@ -20,3 +20,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.nested-bubble').forEach(function(el, i){
+      // only add pins if they aren't present already
+      if (!el.querySelector('.pin')) {
+        const pinL = document.createElement('span');
+        pinL.className = 'pin';
+
+        const pinR = document.createElement('span');
+        pinR.className = 'pin right';
+
+        el.appendChild(pinL);
+        el.appendChild(pinR);
+      }
+
+      const r = (Math.random() * 4) - 2;
+      el.style.transform = 'rotate(' + r + 'deg)';
+    });
+  });
