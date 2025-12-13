@@ -12,7 +12,11 @@
     <h3>Highest Trophies:</h3>
     <p class="nested-bubble">{{ data['bestTrophies'] }}</p>
     <h3>Clan:</h3>
-    <p class="nested-bubble">{{ data['clan']['name'] if data.get('clan')}}</p>
+    <p class="nested-bubble">
+    {% if data['clan'] %}
+        {{ data['clan']['name'] }}
+    {% endif %}
+    </p>
     <form method="get" action="{{ url_for('profile_edit') }}">
       <button type="submit">Edit Profile</button>
     </form>
