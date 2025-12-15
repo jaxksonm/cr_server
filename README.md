@@ -1,3 +1,3 @@
-# clash royale tournament server
+# University of New Hampshire Clash Royale Club (UNH CRC) Web App
 
-hello world
+This is the web app for UNH's Clash Royale Club. Club admins and members make accounts here to see updates and information about the club, including rules, events and announcements, and join tournament brackets.
