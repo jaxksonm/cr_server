@@ -5,15 +5,19 @@ from pathlib import Path
 import requests
 from datetime import datetime
 from math import ceil, log2
-
+# imports for the api key routing 
+import os 
+from dotenv import load_dotenv
+load_dotenv()
 BASE_DIR = Path(__file__).parent
 DATABASE = BASE_DIR / "users.db"
 
 app = Flask(__name__)
 app.secret_key = "key" # TODO: Get secret key
 
-# API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6IjBkMWI4YmYxLWYyNzAtNGZmNy1iOTlhLWFmZjFhNTRjMDg5OCIsImlhdCI6MTc2NDI1NzQyMSwic3ViIjoiZGV2ZWxvcGVyL2Y3YjA5OWM3LTViZmItNDJhOC1mYzUzLTUzNWRjODI4NTJiMCIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyI3My4xMjYuMTQyLjExIl0sInR5cGUiOiJjbGllbnQifV19.zNv5pei5V-J_q7QzrLVCRhiC4GACsWIktZ8V43ruv9RUvJkTyi7fCAmsHaqLM75cC3bVXOtRuRerc5N9HGUIoA"
-API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImZjMDFkNDdiLTYwZmUtNGZmOC1iZmVjLThjZGM0OGQzZmM0NCIsImlhdCI6MTc2NTA3MzUzMSwic3ViIjoiZGV2ZWxvcGVyL2Y3YjA5OWM3LTViZmItNDJhOC1mYzUzLTUzNWRjODI4NTJiMCIsInNjb3BlcyI6WyJyb3lhbGUiXSwibGltaXRzIjpbeyJ0aWVyIjoiZGV2ZWxvcGVyL3NpbHZlciIsInR5cGUiOiJ0aHJvdHRsaW5nIn0seyJjaWRycyI6WyIxMzIuMTc3LjIzOC43MiJdLCJ0eXBlIjoiY2xpZW50In1dfQ.LVbNCw8FAlZ6nYMADsdwyasFKV4HNhyz60voutMGaD-2fedQJjoXHLOZWQ_QiCOJhFZKMrBbbCK8ss6biktgIQ"
+API_KEY = os.getenv("API_KEY")
+if API_KEY is None:
+     raise RuntimeError("No valid API key for environment variable")
 
 # Connect to database
 def get_db():
