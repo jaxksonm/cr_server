@@ -1,0 +1,5 @@
+sending email verification to users when they create an account 
+using their email as well for account recovery where we can send a code 
+maybe some form of 2fa
+already encrypting the db which is great 
+keep adding to this thing any tine you think of a good idea 
