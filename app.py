@@ -7,17 +7,18 @@ from datetime import datetime
 from math import ceil, log2
 # imports for the api key routing 
 import os 
-from dotenv import load_dotenv
-load_dotenv()
 BASE_DIR = Path(__file__).parent
 DATABASE = BASE_DIR / "users.db"
 
 app = Flask(__name__)
 app.secret_key = "key" # TODO: Get secret key
 
-API_KEY = os.getenv("API_KEY")
-if API_KEY is None:
-     raise RuntimeError("No valid API key for environment variable")
+def get_api_key():
+    key = os.getenv("API_KEY")
+    if not key:
+        raise RuntimeError("not a valid api key for variable")
+    return key
+
 
 # Connect to database
 def get_db():
@@ -51,7 +52,8 @@ def home():
     else: # User logged in
         player_tag = session.get('player_tag')
         url = f"https://api.clashroyale.com/v1/players/%23{player_tag}"
-        headers = {"Authorization": f"Bearer {API_KEY}"}
+        headers = {"Authorization": f"Bearer {get_api_key()}"}
+
         try: # TODO: Remove unnecesary API calls, they really slow it down!!!!
             response = requests.get(url, headers=headers)
             response.raise_for_status()
@@ -123,7 +125,8 @@ def register():
             flash("Password must be at least 6 characters.", "error")
             return render_template("register.html")
         url = f"https://api.clashroyale.com/v1/players/%23{player_tag}"
-        headers = {"Authorization": f"Bearer {API_KEY}"}
+        headers = {"Authorization": f"Bearer {get_api_key()}"}
+
         try:
             response = requests.get(url, headers=headers)
             response.raise_for_status()
@@ -192,7 +195,8 @@ def profile():
         flash("Please log in to see profile.", "error")
         return redirect(url_for("login"))
     url = f"https://api.clashroyale.com/v1/players/%23{session.get('player_tag')}"
-    headers = {"Authorization": f"Bearer {API_KEY}"}
+    headers = {"Authorization": f"Bearer {get_api_key()}"}
+
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
