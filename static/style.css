@@ -44,13 +44,28 @@ body {
   height: auto;
   vertical-align: middle;
 }
-
+/* i think the links need a bit of work to look nice, i removed them changing color when clicked */
 nav a {
   margin-left: 1rem;
   text-decoration:none;
   color:#333;
   font-size:0.95rem;
 }
+nav a:visited,
+nav a:hover,
+nav a:active {
+  color: #333;
+  text-decoration: underline;
+}
+
+a,
+a:visited,
+a:hover,
+a:active {
+  color: #1a0dab;
+  text-decoration: underline;
+}
+
 
 li {
   margin-bottom: 0.75rem;
