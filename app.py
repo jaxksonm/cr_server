@@ -109,7 +109,7 @@ def register():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
         password_confirm = request.form.get("password_confirm", "")
-        player_tag = request.form.get("player_tag", "").strip().upper()
+        player_tag = request.form.get("player_tag", "").strip().upper().lstrip("#")
         if (player_tag == "UCVLLVL" or player_tag == "JVGPUV20"): # Only Ronan and Jackson's accoutns are admins
             is_admin = 1
         else:
@@ -121,8 +121,8 @@ def register():
         if password != password_confirm:
             flash("Passwords do not match.", "error")
             return render_template("register.html")
-        if len(password) < 6:
-            flash("Password must be at least 6 characters.", "error")
+        if len(password) < 8:
+            flash("Password must be at least 8 characters.", "error")
             return render_template("register.html")
         url = f"https://api.clashroyale.com/v1/players/%23{player_tag}"
         headers = {"Authorization": f"Bearer {get_api_key()}"}
