@@ -242,7 +242,43 @@ def chat():
     if not session.get("user_id"):
         flash("Please log in to use chat.", "error")
         return redirect(url_for("login"))
-    return render_template("chat.html")
+
+    db = get_db()
+    messages = db.execute("""
+        SELECT chat_messages.message,
+               chat_messages.created_at,
+               users.username
+        FROM chat_messages
+        JOIN users ON chat_messages.user_id = users.id
+        ORDER BY chat_messages.created_at ASC
+        LIMIT 50
+    """).fetchall()
+
+    return render_template("chat.html", messages=messages)
+
+
+@app.route("/chat/send", methods=["POST"])
+def chat_send():
+    if not session.get("user_id"):
+        return {"error": "Not logged in"}, 401
+
+    data = request.get_json()
+    message = data.get("message", "").strip()
+
+    if not message:
+        return {"error": "Empty message"}, 400
+
+    db = get_db()
+    db.execute(
+        "INSERT INTO chat_messages (user_id, message) VALUES (?, ?)",
+        (session["user_id"], message),
+    )
+    db.commit()
+
+    return {
+        "username": session["username"],
+        "message": message
+    }
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 def profile_edit():
