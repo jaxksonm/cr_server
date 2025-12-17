@@ -173,3 +173,34 @@ textarea {
   height: 5rem;
   width: 100%;
 }
+
+.chat-page {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.chat-box {
+  border: 1px solid #ccc;
+  height: 400px;
+  padding: 12px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  background: #f9f9f9;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px;
+}
+
+.chat-send {
+  padding: 10px 16px;
+}

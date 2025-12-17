@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="chat-page">
+  <h1>Clash Royale Chat Room</h1>
+  <p>Logged in as <strong>{{ session.username }}</strong></p>
+
+  <div class="chat-box">
+    <p><em>chat messages will appear here.</em></p>
+  </div>
+
+  <div class="chat-input-row">
+    <input class="chat-input" type="text" placeholder="Type a message..." disabled>
+    <button class="chat-send" disabled>Send</button>
+  </div>
+
+</div>
+{% endblock %}
+

@@ -237,6 +237,12 @@ def profile_delete():
     flash("Your profile was deleted.", "success")
     return redirect(url_for("home"))
 
+@app.route("/chat")
+def chat():
+    if not session.get("user_id"):
+        flash("Please log in to use chat.", "error")
+        return redirect(url_for("login"))
+    return render_template("chat.html")
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 def profile_edit():
