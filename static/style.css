@@ -183,7 +183,8 @@ textarea {
 }
 
 .chat-box {
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
+  border-radius: 12px;
   height: 400px;
   padding: 12px;
   overflow-y: auto;
@@ -200,10 +201,21 @@ textarea {
 .chat-input {
   flex: 1;
   padding: 10px;
+  border: 1px solid black;
+  border-radius: 12px;
 }
 
 .chat-send {
   padding: 10px 16px;
+
+}
+.chat-send:hover {
+  background-color: #333;      
+  color: #fff;
+}
+
+.chat-send:active {
+  background-color: #000;    
 }
 
 .chat-message {
