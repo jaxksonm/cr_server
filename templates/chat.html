@@ -7,7 +7,7 @@
 
   <div id="chat-box" class="chat-box">
     {% for m in messages %}
-      <div class="chat-message">
+      <div class="chat-message {% if m.username == session.username %}my-message{% else %}other-message{% endif %}">
         <strong>{{ m.username }}:</strong> {{ m.message }}
       </div>
     {% endfor %}
@@ -18,8 +18,8 @@
       id="chat-input"
       class="chat-input"
       type="text"
+  
       autocomplete="off"
-   
     >
     <button class="chat-send" type="submit">Send</button>
   </form>
@@ -52,7 +52,7 @@ form.addEventListener("submit", async (e) => {
   const data = await res.json();
 
   const div = document.createElement("div");
-  div.className = "chat-message";
+  div.className = `chat-message ${data.username === "{{ session.username }}" ? "my-message" : "other-message"}`;
   div.innerHTML = `<strong>${data.username}:</strong> ${data.message}`;
   chatBox.appendChild(div);
 
