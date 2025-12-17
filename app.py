@@ -261,7 +261,10 @@ def chat():
 def chat_send():
     if not session.get("user_id"):
         return {"error": "Not logged in"}, 401
-
+    ####temp admin only chat access while under construction###########
+    if not session.get("is_admin"):
+        return {"error": "Admins only"}, 403
+    ####################################################################
     data = request.get_json()
     message = data.get("message", "").strip()
 
