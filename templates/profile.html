@@ -20,13 +20,16 @@
         {{ data['clan']['name'] }}
     {% endif %}
     </p>
-    <form method="get" action="{{ url_for('profile_edit') }}">
+    <div class="lr">
+<form method="get" action="{{ url_for('profile_edit') }}">
       <button type="submit">Edit Profile</button>
     </form>
     <form method="post" action="{{ url_for('profile_delete') }}"
       onsubmit="return confirm('Are you SURE you want to delete your profile?');">
     <button class="red" type="submit">Delete Profile</button>
     </form>
+    </div>
+    
 
 </div>
 

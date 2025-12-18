@@ -258,3 +258,8 @@ textarea {
   height: 100px;
 }
 
+.lr {
+  display: flex;
+  justify-content:space-between;
+}
+
