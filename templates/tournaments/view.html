@@ -33,11 +33,7 @@
 
 <div class="bubble">
   <h2>Participants</h2>
-  {% if session.get("is_admin") %}
-  <form method="post" action="{{ url_for('tournament_view', tid=tournament['id']) }}?generate=1">
-    <button type="submit">Start</button>
-  </form>
-  {% endif %}
+  
   {% if participants %}
   <ul>
   {% for p in participants %}
@@ -45,7 +41,12 @@
   {% endfor %}
   </ul>
   {% else %}
-    <p>No participants yet.</p>
+    <p class="muted">No participants yet.</p>
+  {% endif %}
+  {% if session.get("is_admin") %}
+  <form method="post" action="{{ url_for('tournament_view', tid=tournament['id']) }}?generate=1">
+    <button type="submit">Start</button>
+  </form>
   {% endif %}
 </div>
 
