@@ -33,7 +33,7 @@
     <div class="nested-bubble">
         <div class="name-and-pfp">
             <img class="pfp" src="../static/pfp/{{ announcement.pfp }}.webp">
-            <h1 class="{{ announcement.rarity }}">{{ announcement.username }} // {{ announcement.cr_username }} -- {{ announcement.created_at }}</h1>
+            <h1><span  class="{{ announcement.rarity }}">{{ announcement.username }} // {{ announcement.cr_username }}</span><br>{{ announcement.created_at }}</h1>
         </div>
         <p>{{ announcement.announcement }}</p>
     </div>   
