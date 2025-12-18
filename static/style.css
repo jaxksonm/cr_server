@@ -272,5 +272,13 @@ textarea {
 }
 
 .common {
- color: rgb(158, 202, 255)
+ color: rgb(158, 202, 255);
+}
+
+.rare {
+  color: rgb(249, 207, 95);
+}
+
+.epic {
+  color: #FF99FF;
 }
