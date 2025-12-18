@@ -17,8 +17,11 @@
         <tr {% if row["player_tag"] == session.get("player_tag") %}class="you"{% endif %}>
           <td>{{ row.rank }}</td>
           <td>
-            {{ row.username }} // {{row.cr_username}}
-            {% if row.player_tag == session.get("player_tag") %} <strong>(you)</strong>{% endif %}
+            <div class="name-and-pfp">
+              <img class="pfp" src="../static/pfp/{{ row.pfp }}.webp">
+              <h1>{{ row.username }} // {{ row.cr_username }}{% if row.player_tag == session.get("player_tag") %} <strong>(you)</strong>{% endif %}
+</h1>
+            </div>
           </td>
           <td>{{ row.points }}</td>
         </tr>
@@ -43,7 +46,10 @@
     <tbody>
       <tr class="you">
         <td>{{ you.rank }}</td>
-        <td>{{ you.username }} // {{ you.cr_username }} <strong>(you)</strong></td>
+        <td><div class="name-and-pfp">
+      <img class="pfp" src="../static/pfp/{{ session.get('pfp') }}.webp">
+      <h1>{{ you.username }} // {{ you.cr_username }} <strong>(you)</strong></h1>
+    </div> </td>
         <td>{{ you.points }}</td>
       </tr>
     </tbody>

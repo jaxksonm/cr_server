@@ -614,14 +614,14 @@ def leaderboard():
     # Get top ten
     db = get_db()
     top_rows = db.execute(
-        "SELECT username, cr_username, player_tag, points FROM users ORDER BY points DESC LIMIT 10"
+        "SELECT username, pfp, cr_username, player_tag, points FROM users ORDER BY points DESC LIMIT 10"
     ).fetchall()
     # Convert to dicts and assign rank (ties share rank)
     top = []
     for player in top_rows:
         rank_row = db.execute("SELECT COUNT(*) AS cnt FROM users WHERE points > ?", (session.get("points"),)).fetchone()
         rank = rank_row["cnt"] + 1
-        top.append({"rank": rank, "username": player["username"], "cr_username": player["cr_username"], "player_tag": player["player_tag"], "points": player["points"]})
+        top.append({"rank": rank, "pfp": player["pfp"], "username": player["username"], "cr_username": player["cr_username"], "player_tag": player["player_tag"], "points": player["points"]})
     # Get current user's ranking
     current_user = None
     user_row = None
@@ -629,7 +629,7 @@ def leaderboard():
     if user_id:
         rank_row = db.execute("SELECT COUNT(*) AS cnt FROM users WHERE points > ?", (session.get("points"),)).fetchone()
         rank = rank_row["cnt"] + 1
-        current_user = {"rank": rank, "username": session.get("username"), "cr_username": session.get("cr_username"), "player_tag": session.get("player_tag"), "points": session.get("points")}
+        current_user = {"rank": rank, "pfp": session.get("pfp"), "username": session.get("username"), "cr_username": session.get("cr_username"), "player_tag": session.get("player_tag"), "points": session.get("points")}
     return render_template(
         "leaderboard.html",
         top=top,

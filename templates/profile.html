@@ -3,9 +3,8 @@
 
 <div class = "bubble">
     <div class="name-and-pfp">
-          <img class="pfp" src="../static/pfp/{{ session.get('pfp') }}.webp">
-    <h1>{{ session.get("username") }} // {{ data['name'] }}</h1>
-
+      <img class="pfp" src="../static/pfp/{{ session.get('pfp') }}.webp">
+      <h1>{{ session.get("username") }} // {{ data['name'] }}</h1>
     </div>
     <h3>Player Tag:</h3>
     <p class="nested-bubble">#{{ session.get('player_tag') }}</p>
