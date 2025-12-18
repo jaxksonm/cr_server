@@ -3,6 +3,7 @@
 
 <div class = "bubble">
     <h1>{{ session.get("username") }} // {{ data['name'] }}</h1>
+    <img src="../static/pfp/{{ session.get('pfp') }}.png">
     <h3>Player Tag:</h3>
     <p class="nested-bubble">#{{ session.get('player_tag') }}</p>
     <h3>UNH CRC Points:</h3>

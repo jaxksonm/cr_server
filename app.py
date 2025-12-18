@@ -177,6 +177,7 @@ def login():
         if user and check_password_hash(user["password_hash"], password): # Login success
             session.clear()
             session["user_id"] = user["id"]
+            session["pfp"] = user["pfp"]
             session["username"] = user["username"]
             session["cr_username"] = user["cr_username"]
             session["player_tag"] = user["player_tag"]
@@ -292,18 +293,20 @@ def profile_edit():
     uid = session["user_id"]
     # Fetch user
     user = db.execute(
-        "SELECT id, username, email, player_tag FROM users WHERE id = ?",
+        "SELECT id, pfp, username, email, player_tag FROM users WHERE id = ?",
         (uid,)
     ).fetchone()
     if not user:
         flash("User not found.", "error")
         return redirect(url_for("logout"))
+    current_pfp = user["pfp"]    
     current_username = user["username"]
     current_email = user["email"]
     current_player_tag = user["player_tag"]
     if request.method == "GET":
         return render_template(
             "profile_edit.html",
+            pfp=current_pfp,
             username=current_username,
             email=current_email,
             player_tag=current_player_tag,
