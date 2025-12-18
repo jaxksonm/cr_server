@@ -38,6 +38,8 @@
         <p>{{ announcement.announcement }}</p>
     </div>   
     {% endfor %}
-    <p><a href="{{ url_for('announcements') }}">View all announcements</a></p>
+    <form method="get" action="{{ url_for('announcements')}}">
+        <button type="submit">View All Announcements</button>
+    </form>
 </div>
 {% endblock %}
