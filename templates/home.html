@@ -29,6 +29,7 @@
 </div>
 <div class="bubble">
     <h1>Recent Announcements</h1>
+    {% if recent_announcements %}
     {% for announcement in recent_announcements %}
     <div class="nested-bubble">
         <div class="name-and-pfp">
@@ -38,6 +39,10 @@
         <p>{{ announcement.announcement }}</p>
     </div>   
     {% endfor %}
+    
+    {% else %}
+                <p class="muted">No recent announcements.</p>
+    {% endif %}
     <form method="get" action="{{ url_for('announcements')}}">
         <button type="submit">View All Announcements</button>
     </form>
