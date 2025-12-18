@@ -266,7 +266,9 @@ def chat():
     messages = db.execute("""
         SELECT chat_messages.message,
                chat_messages.created_at,
-               users.username
+               users.username,
+               users.pfp,
+               users.rarity
         FROM chat_messages
         JOIN users ON chat_messages.user_id = users.id
         ORDER BY chat_messages.created_at ASC

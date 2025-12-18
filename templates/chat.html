@@ -8,7 +8,8 @@
   <div id="chat-box" class="chat-box">
     {% for m in messages %}
       <div class="chat-message {% if m.username == session.username %}my-message{% else %}other-message{% endif %}">
-        <strong>{{ m.username }}:</strong> {{ m.message }}
+        <img class="chat-pfp" src="../static/pfp/{{ m.pfp }}.webp">
+        <span class="{{ m.rarity }}"><strong>{{ m.username }}:</strong></span> {{ m.message }}
       </div>
     {% endfor %}
   </div>

@@ -227,6 +227,8 @@ textarea {
 }
 
 .chat-message {
+  display: flex;
+  gap: 8px;
   padding: 8px 12px;
   border-radius: 6px;
   margin-bottom: 8px;
@@ -281,4 +283,8 @@ textarea {
 
 .epic {
   color: #FF99FF;
+}
+
+.chat-pfp {
+  height: 30px;
 }
