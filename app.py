@@ -49,7 +49,7 @@ def index():
 def home():
     db = get_db()
     recent_announcements = db.execute(
-        "SELECT id, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC LIMIT 3"
+        "SELECT id, pfp, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC LIMIT 3"
     ).fetchall()
     if not session.get("user_id"): # User not logged in
         return render_template("home.html", data=None, recent_announcements=recent_announcements)
@@ -72,16 +72,17 @@ def announcements():
     db = get_db()
     if (request.method == "POST"):
         username = session.get("username")
+        pfp = session.get("pfp")
         cr_username = session.get("cr_username")
         announcement = request.form.get("announcement", "")
         db.execute(
-                "INSERT INTO announcements (username, cr_username, announcement) VALUES (?, ?, ?)",
-                (username, cr_username, announcement),
+                "INSERT INTO announcements (username, pfp, cr_username, announcement) VALUES (?, ?, ?, ?)",
+                (username, pfp, cr_username, announcement),
             )
         db.commit()
         flash("Announcement posted.", "success")
     announcements = db.execute(
-        "SELECT id, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC"
+        "SELECT id, pfp, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC"
     ).fetchall()
     return render_template("announcements.html", announcements=announcements)
 

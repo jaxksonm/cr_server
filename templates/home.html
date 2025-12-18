@@ -28,10 +28,13 @@
     </p>
 </div>
 <div class="bubble">
-    <h1>Announcements</h1>
+    <h1>Recent Announcements</h1>
     {% for announcement in recent_announcements %}
     <div class="nested-bubble">
-        <h3>{{ announcement.username }} // {{ announcement.cr_username }} -- {{ announcement.created_at }}</h3>
+        <div class="name-and-pfp">
+            <img class="pfp" src="../static/pfp/{{ announcement.pfp }}.webp">
+            <h1>{{ announcement.username }} // {{ announcement.cr_username }} -- {{ announcement.created_at }}</h1>
+        </div>
         <p>{{ announcement.announcement }}</p>
     </div>   
     {% endfor %}
