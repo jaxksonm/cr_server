@@ -24,6 +24,17 @@ def get_api_key():
     return key
 
 
+def get_available_pfp(): # Get all available pfps for dropdown menu in profile_edit
+    pfp_dir = BASE_DIR / "static" / "pfp"
+    if not pfp_dir.exists():
+        return []
+    pfp_files = []
+    for file in sorted(pfp_dir.iterdir()):
+        if file.suffix in ['.webp', '.png']:
+            pfp_files.append(file.stem)
+    return pfp_files
+
+
 # Connect to database
 def get_db():
     if "db" not in g:
@@ -308,6 +319,7 @@ def profile_edit():
     current_username = user["username"]
     current_email = user["email"]
     current_player_tag = user["player_tag"]
+    available_pfp = get_available_pfp()
     if request.method == "GET":
         return render_template(
             "profile_edit.html",
@@ -315,6 +327,7 @@ def profile_edit():
             username=current_username,
             email=current_email,
             player_tag=current_player_tag,
+            available_pfp=available_pfp,
         )
     # Get new username/email.pass
     form_username = request.form.get("username", "").strip()
