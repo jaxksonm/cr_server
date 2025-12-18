@@ -19,7 +19,7 @@
           <td>
             <div class="name-and-pfp">
               <img class="pfp" src="../static/pfp/{{ row.pfp }}.webp">
-              <h1>{{ row.username }} // {{ row.cr_username }}{% if row.player_tag == session.get("player_tag") %} <strong>(you)</strong>{% endif %}</h1>
+              <h1 class="{{ row.rarity }}">{{ row.username }} // {{ row.cr_username }}{% if row.player_tag == session.get("player_tag") %} <strong>(you)</strong>{% endif %}</h1>
             </div>
           </td>
           <td>{{ row.points }}</td>
@@ -47,7 +47,7 @@
         <td>{{ you.rank }}</td>
         <td><div class="name-and-pfp">
       <img class="pfp" src="../static/pfp/{{ session.get('pfp') }}.webp">
-      <h1>{{ you.username }} // {{ you.cr_username }} <strong>(you)</strong></h1>
+      <h1 class="{{ you.rarity }}">{{ you.username }} // {{ you.cr_username }} <strong>(you)</strong></h1>
     </div> </td>
         <td>{{ you.points }}</td>
       </tr>

@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     pfp TEXT DEFAULT 'None',
+    rarity TEXT DEFAULT 'common',
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
@@ -44,6 +45,7 @@ CREATE TABLE IF NOT EXISTS matches (
 CREATE TABLE IF NOT EXISTS announcements (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     pfp TEXT DEFAULT 'None',
+    rarity TEXT DEAFULT 'common',
     username TEXT,
     cr_username TEXT,
     announcement TEXT,
@@ -53,6 +55,7 @@ CREATE TABLE IF NOT EXISTS announcements (
 CREATE TABLE IF NOT EXISTS chat_messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     pfp TEXT DEFAULT 'None',
+    rarity TEXT DEAFULT 'common',
     user_id INTEGER NOT NULL,
     message TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
