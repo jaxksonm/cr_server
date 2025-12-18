@@ -6,8 +6,12 @@ import requests
 from datetime import datetime
 from math import ceil, log2
 # imports for the api key routing 
-import os 
+import os
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).parent
+load_dotenv(BASE_DIR / ".env")
+
 DATABASE = BASE_DIR / "users.db"
 
 app = Flask(__name__)
@@ -313,6 +317,7 @@ def profile_edit():
         )
     # Get new username/email.pass
     form_username = request.form.get("username", "").strip()
+    form_pfp = request.form.get("pfp", "").strip()
     form_email = request.form.get("email", "").strip().lower()
     form_current_password = request.form.get("current_password", "")
     form_new_password = request.form.get("new_password", "")
@@ -359,6 +364,12 @@ def profile_edit():
                 (form_username, uid),
             )
             session["username"] = form_username
+        if form_pfp != "":
+            db.execute(
+                "UPDATE users SET pfp = ? WHERE id = ?",
+                (form_pfp, uid),
+            )
+            session["pfp"] = form_pfp
         if form_email != "":
             db.execute(
                 "UPDATE users SET email = ? WHERE id = ?",
