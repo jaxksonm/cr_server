@@ -5,6 +5,7 @@
   <p> {{ tournament['date'] }} in {{ tournament['location'] }}</p>
   <p class = "muted"> {{ tournament['description'] }}</p>
   
+<div class="lr">
 {% if session.get('user_id') %}
   {% if not joined %}
     <form method="post"
@@ -15,19 +16,27 @@
     <form method="post"
       action="{{ url_for('tournament_leave', tid=tournament['id']) }}"
       onsubmit="return confirm('Are you sure you want to leave this tournament?');">
-    <button class="red" type="submit">Leave Tournament</button>
+    <button type="submit">Leave Tournament</button>
     </form>
   {% endif %}
 {% else %}
-  <p><a href="{{ url_for('login') }}">Log in</a> to join the tournament.</p>
+<form method="get"
+      action="{{ url_for('login')}}">
+    <button type="submit">Log In</button> to join the tournament.
+</form>
 {% endif %}
-  <p><a href="{{ url_for('tournaments_list') }}">Back to tournaments</a></p>
+<form method="get"
+      action="{{ url_for('tournaments_list')}}">
+    <button class="red" type="submit">Back</button>
+</form></div>
 </div>
 
-<form class = "bubble" method="post">
+<div class="bubble">
   <h2>Participants</h2>
   {% if session.get("is_admin") %}
-  <p><a href="{{ url_for('tournament_view', tid=tournament['id']) }}?generate=1">Generate bracket</a></p>
+  <form method="post" action="{{ url_for('tournament_view', tid=tournament['id']) }}?generate=1">
+    <button type="submit">Start</button>
+  </form>
   {% endif %}
   {% if participants %}
   <ul>
@@ -38,7 +47,8 @@
   {% else %}
     <p>No participants yet.</p>
   {% endif %}
-</form>
+</div>
+
 
 <div class = "bubble">
   <h2>Matches</h2>
@@ -59,14 +69,17 @@
     <p>Tournament hasn't started yet.</p>
   {% endif %}
   {% if session.get('is_admin') %}
-  <form method="post" action="{{ url_for('tournament_end', tid=tournament['id']) }}"
+  <div class="lr">
+<form method="post" action="{{ url_for('tournament_end', tid=tournament['id']) }}"
         onsubmit="return confirm('Are you sure you want to end this tournament?');">
-    <button class="red" type="submit">End Tournament</button>
+    <button type="submit">End Tournament</button>
   </form>
   <form method="post" action="{{ url_for('tournament_delete', tid=tournament['id']) }}"
         onsubmit="return confirm('Are you sure you want to delete this tournament?');">
     <button class="red" type="submit">Delete Tournament</button>
   </form>
+  </div>
+  
 {% endif %}
   </div>
 
