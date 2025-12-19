@@ -12,9 +12,6 @@
           <img class= "pfp" alt="{{ card['name'] }}" src="../static/pfp/{{ card['name'] }}.webp">
         {% endfor %}
       </div>
-      {% for card in data['cards'] %}
-        {{ card['name'] }}<br>
-      {% endfor %}
     <h3>Player Tag:</h3>
     <p class="nested-bubble">#{{ profile.player_tag }}</p>
     <h3>UNH CRC Points:</h3>

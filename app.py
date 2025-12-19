@@ -234,7 +234,6 @@ def profile(ptag):
     profile = db.execute(
         "SELECT username, player_tag, points, cr_username, rarity, pfp FROM users WHERE player_tag = ?", (ptag,)
     ).fetchone()
-    print(type(profile))
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
@@ -242,7 +241,7 @@ def profile(ptag):
         return render_template("profile.html", profile=profile, data=data, you=you)
     except requests.RequestException as e:
         flash("Unable to access Clash Royale API using player tag", "error")
-        return render_template("profile.html", data=None, you=you)
+        return render_template("profile.html", profile=profile, data=None, you=you)
 
 
 @app.route("/profile/delete", methods=["POST"])
@@ -269,7 +268,7 @@ def profile_delete():
         db.rollback()
         app.logger.exception("Error deleting profile for user %s: %s", uid, e)
         flash("Could not delete profile. Contact an admin.", "error")
-        return redirect(url_for("profile"))
+        return redirect(url_for("profile"), ptag=session.get("player_tag"))
     # 5. Clear session and redirect to home
     session.clear()
     flash("Your profile was deleted.", "success")
@@ -434,7 +433,7 @@ def profile_edit():
         )
     # Update session
     flash("Profile updated.", "success")
-    return redirect(url_for("profile"))
+    return redirect(url_for("profile", ptag=current_player_tag))
 
 
 @app.route("/logout")
