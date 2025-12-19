@@ -9,8 +9,10 @@
         </form><br>
     {% endif %}
     {% if announcements %}
+        <div class="nested-bubble">
+
     {% for announcement in announcements %}
-    <div class="nested-bubble">
+    <div class="bubble">
         <div class="name-and-pfp">
             <img class="pfp" src="../static/pfp/{{ announcement.pfp }}.webp">
             <h1><span  class="{{ announcement.rarity }}">{{ announcement.username }} // {{ announcement.cr_username }}</span><br>{{ announcement.created_at }}</h1>
@@ -24,6 +26,7 @@
         {% endif %}
     </div>
     {% endfor %}
+    </div>
     {% else %}
         <p class="muted">No announcements.</p>
     {% endif %}
