@@ -311,14 +311,17 @@ def chat_send():
         return {"error": "Empty message"}, 400
 
     db = get_db()
+    # TODO: PUT RARITY AND PFP HERE
     db.execute(
-        "INSERT INTO chat_messages (user_id, message) VALUES (?, ?)",
-        (session["user_id"], message),
+        "INSERT INTO chat_messages (user_id, pfp, rarity, message) VALUES (?, ?, ?, ?)",
+        (session["user_id"], session["pfp"], session["rarity"], message),
     )
     db.commit()
 
     return {
         "username": session["username"],
+        "pfp": session["pfp"],
+        "rarity": session["rarity"],
         "message": message
     }
 
