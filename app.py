@@ -56,9 +56,20 @@ def index():
 @app.route("/home")
 def home():
     db = get_db()
-    recent_announcements = db.execute(
-        "SELECT id, pfp, rarity, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC LIMIT 3"
-    ).fetchall()
+    # recent_announcements = db.execute(
+    #     "SELECT id, pfp, rarity, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC LIMIT 3"
+    # ).fetchall()
+    recent_announcements = db.execute("""
+        SELECT announcements.announcement,
+               announcements.created_at,
+               users.username,
+               users.pfp,
+               users.rarity
+        FROM announcements
+        JOIN users ON announcements.user_id = users.id
+        ORDER BY announcements.created_at ASC
+        LIMIT 3
+    """).fetchall()
     if not session.get("user_id"): # User not logged in
         return render_template("home.html", data=None, recent_announcements=recent_announcements)
     else: # User logged in
@@ -79,20 +90,29 @@ def home():
 def announcements():
     db = get_db()
     if (request.method == "POST"):
-        username = session.get("username")
-        pfp = session.get("pfp")
-        rarity = session.get("rarity")
-        cr_username = session.get("cr_username")
+        user_id = session.get("user_id")
         announcement = request.form.get("announcement", "")
         db.execute(
-                "INSERT INTO announcements (username, pfp, rarity, cr_username, announcement) VALUES (?, ?, ?, ?, ?)",
-                (username, pfp, rarity, cr_username, announcement),
+                "INSERT INTO announcements (user_id, announcement) VALUES (?, ?)",
+                (user_id, announcement),
             )
         db.commit()
         flash("Announcement posted.", "success")
-    announcements = db.execute(
-        "SELECT id, pfp, rarity, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC"
-    ).fetchall()
+    # announcements = db.execute(
+    #     "SELECT id, pfp, rarity, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC"
+    # ).fetchall()
+    announcements = db.execute("""
+        SELECT announcements.announcement,
+               announcements.created_at,
+               announcements.id,
+               users.username,
+               users.pfp,
+               users.rarity
+        FROM announcements
+        JOIN users ON announcements.user_id = users.id
+        ORDER BY announcements.created_at DESC
+        LIMIT 50
+    """).fetchall()
     return render_template("announcements.html", announcements=announcements)
 
 
@@ -205,23 +225,6 @@ def login():
             return render_template("login.html")
 
 
-# @app.route("/profile")
-# def profile():
-#     if not session.get("user_id"): # Cannot see profile unless logged in
-#         flash("Please log in to see profile.", "error")
-#         return redirect(url_for("login"))
-#     url = f"https://api.clashroyale.com/v1/players/%23{session.get('player_tag')}"
-#     headers = {"Authorization": f"Bearer {get_api_key()}"}
-
-#     try:
-#         response = requests.get(url, headers=headers)
-#         response.raise_for_status()
-#         data = response.json()
-#         return render_template("profile.html", data=data)
-#     except requests.RequestException as e:
-#         flash("Unable to access Clash Royale API using player tag", "error")
-#         return render_template("profile.html", data=None)
-
 @app.route("/profile/<string:ptag>")
 def profile(ptag):
     you = False
@@ -279,7 +282,6 @@ def chat():
     # if not session.get("user_id"):
     #     flash("Please log in to use chat.", "error")
     #     return redirect(url_for("login"))
-
     db = get_db()
     messages = db.execute("""
         SELECT chat_messages.message,
@@ -292,7 +294,6 @@ def chat():
         ORDER BY chat_messages.created_at ASC
         LIMIT 50
     """).fetchall()
-
     return render_template("chat.html", messages=messages)
 
 
