@@ -215,7 +215,7 @@ textarea {
 
 .chat-send {
   padding: 10px 16px;
-
+  margin: 2px;
 }
 .chat-send:hover {
   background-color: #333;      
