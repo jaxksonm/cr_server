@@ -6,6 +6,12 @@
       <img class="pfp" src="../static/pfp/{{ profile.pfp }}.webp">
       <h1 class="{{ profile.rarity }}">{{ profile.username }} // {{ profile.cr_username }}</h1>
     </div>
+    <h3>Deck:</h3>
+    <p class="nested-bubble">
+      {% for card in data['currentDeck'] %}
+        {{card['name']}}
+      {% endfor %}
+    </p>
     <h3>Player Tag:</h3>
     <p class="nested-bubble">#{{ profile.player_tag }}</p>
     <h3>UNH CRC Points:</h3>
