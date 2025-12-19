@@ -337,3 +337,30 @@ a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
     background-position: 300px 0;
   }
 }
+
+/* Mobile */
+
+/* @media (max-width: 600px) {
+  .container {
+    gap: 16px;
+  }
+
+  body {
+    font-size: 0.75rem;
+  }
+
+  h1 {
+    font-size: 1rem;
+  }
+
+  nav a,
+  label,
+  .muted {
+    font-size: 0.75rem;
+  }
+
+  a.ranking {
+    font-size: 1rem;
+  }
+} */
+
