@@ -225,6 +225,13 @@ def login():
             return render_template("login.html")
 
 
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Logged out.", "success")
+    return redirect(url_for("login"))
+
+
 @app.route("/profile/<string:ptag>")
 def profile(ptag):
     you = False
@@ -277,54 +284,6 @@ def profile_delete():
     flash("Your profile was deleted.", "success")
     return redirect(url_for("home"))
 
-@app.route("/chat")
-def chat():
-    # if not session.get("user_id"):
-    #     flash("Please log in to use chat.", "error")
-    #     return redirect(url_for("login"))
-    db = get_db()
-    messages = db.execute("""
-        SELECT chat_messages.message,
-               chat_messages.created_at,
-               users.username,
-               users.pfp,
-               users.rarity
-        FROM chat_messages
-        JOIN users ON chat_messages.user_id = users.id
-        ORDER BY chat_messages.created_at ASC
-        LIMIT 50
-    """).fetchall()
-    return render_template("chat.html", messages=messages)
-
-
-@app.route("/chat/send", methods=["POST"])
-def chat_send():
-    if not session.get("user_id"):
-        return {"error": "Not logged in"}, 401
-    ####temp admin only chat access while under construction###########
-    if not session.get("is_admin"):
-        return {"error": "Admins only"}, 403
-    ####################################################################
-    data = request.get_json()
-    message = data.get("message", "").strip()
-
-    if not message:
-        return {"error": "Empty message"}, 400
-
-    db = get_db()
-    # TODO: PUT RARITY AND PFP HERE
-    db.execute(
-        "INSERT INTO chat_messages (user_id, pfp, rarity, message) VALUES (?, ?, ?, ?)",
-        (session["user_id"], session["pfp"], session["rarity"], message),
-    )
-    db.commit()
-
-    return {
-        "username": session["username"],
-        "pfp": session["pfp"],
-        "rarity": session["rarity"],
-        "message": message
-    }
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 def profile_edit():
@@ -440,11 +399,47 @@ def profile_edit():
     return redirect(url_for("profile", ptag=current_player_tag))
 
 
-@app.route("/logout")
-def logout():
-    session.clear()
-    flash("Logged out.", "success")
-    return redirect(url_for("login"))
+@app.route("/chat")
+def chat():
+    db = get_db()
+    messages = db.execute("""
+        SELECT chat_messages.message,
+               chat_messages.created_at,
+               users.username,
+               users.pfp,
+               users.rarity
+        FROM chat_messages
+        JOIN users ON chat_messages.user_id = users.id
+        ORDER BY chat_messages.created_at ASC
+        LIMIT 50
+    """).fetchall()
+    return render_template("chat.html", messages=messages)
+
+
+@app.route("/chat/send", methods=["POST"])
+def chat_send():
+    if not session.get("user_id"):
+        return {"error": "Not logged in"}, 401
+    # TODO: ONLY ADMINS CAN ACCESS CHAT FOR NOW UNTIL WE PUT A LIMIT
+    if not session.get("is_admin"):
+        return {"error": "Admins only"}, 403
+    ################################################################
+    data = request.get_json()
+    message = data.get("message", "").strip()
+    if not message:
+        return {"error": "Empty message"}, 400
+    db = get_db()
+    db.execute(
+        "INSERT INTO chat_messages (user_id, pfp, rarity, message) VALUES (?, ?, ?, ?)",
+        (session["user_id"], session["pfp"], session["rarity"], message),
+    )
+    db.commit()
+    return {
+        "username": session["username"],
+        "pfp": session["pfp"],
+        "rarity": session["rarity"],
+        "message": message
+    }
 
 
 def create_bracket(participants):
