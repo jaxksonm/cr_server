@@ -1,9 +1,12 @@
+/* General */
+
 :root {
   --maxw: 720px;
   --muted: #666;
 }
 
 * { box-sizing: border-box; }
+
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   margin: 0;
@@ -15,11 +18,59 @@ body {
   line-height: 1.4;
 }
 
+li {
+  margin-bottom: 0.75rem;
+}
+
+h1 {
+  margin-top: 0;
+  font-size:1.6rem;
+}
+
 .container {
   max-width: var(--maxw);
   margin: 2rem auto;
   padding: 0 1rem;
 }
+
+.bubble {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+  margin-bottom: 0.75rem;
+}
+
+.nested-bubble {
+  background: #f7f7f8;;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+  margin-bottom: 0.75rem;
+}
+
+.muted {
+  color: var(--muted);
+  font-size:0.95rem;
+  margin-top: 0.75rem;
+}
+
+.name-and-pfp {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.pfp {
+  width: 75px;
+}
+
+.lr {
+  display: flex;
+  justify-content:space-between;
+}
+
+/* Header */
 
 .topbar {
   background: white;
@@ -52,13 +103,14 @@ body {
   height: auto;
   vertical-align: middle;
 }
-/* i think the links need a bit of work to look nice, i removed them changing color when clicked */
+
 nav a {
   margin-left: 1rem;
   text-decoration:none;
   color:#333;
   font-size:0.95rem;
 }
+
 nav a:visited,
 nav a:hover,
 nav a:active {
@@ -74,31 +126,7 @@ a:active {
   text-decoration: underline;
 }
 
-
-li {
-  margin-bottom: 0.75rem;
-}
-
-h1 {
-  margin-top: 0;
-  font-size:1.6rem;
-}
-
-.bubble {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
-  margin-bottom: 0.75rem;
-}
-
-.nested-bubble {
-  background: #f7f7f8;;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
-  margin-bottom: 0.75rem;
-}
+/* Forms */
 
 label {
   display:block;
@@ -115,6 +143,11 @@ label input {
   border-radius: 6px;
 }
 
+textarea {
+  height: 5rem;
+  width: 100%;
+}
+
 button {
   margin-top: 0.5rem;
   padding: 0.6rem 0.9rem;
@@ -123,12 +156,6 @@ button {
   background: #111;
   color: white;
   cursor: pointer;
-}
-
-.muted {
-  color: var(--muted);
-  font-size:0.95rem;
-  margin-top: 0.75rem;
 }
 
 .red {
@@ -153,13 +180,7 @@ button {
   border: 1px solid #ffd6d6;
 }
 
-.tournament {
-  display:flex; gap:1rem; align-items:flex-start;
-}
-
-.tournament .round {
-  border-left:1px solid #ddd; padding-left:1rem;
-}
+/* Leaderboard */
 
 table.leaderboard { 
   border-collapse: collapse; width: 100%; max-width: 720px;
@@ -177,12 +198,22 @@ table.leaderboard tr.you {
   background: #fff7d6;
 }
 
-textarea {
-  height: 5rem;
-  width: 100%;
+td {
+  text-align: center;
 }
 
-/* chat section  */
+/* Tournaments */
+
+.tournament {
+  display:flex; gap:1rem; align-items:flex-start;
+}
+
+.tournament .round {
+  border-left:1px solid #ddd; padding-left:1rem;
+}
+
+/* Chat */
+
 .chat-page {
   background: #ffffff;
   padding: 24px;
@@ -250,22 +281,13 @@ textarea {
   text-align: left;
 }
 
-.name-and-pfp {
-  display: flex;
-  gap: 32px;
-  align-items: center;
+.chat-pfp {
+  width: 25px;
 }
 
-.pfp {
-  width: 75px;
-}
+/* Rarity */
 
-.lr {
-  display: flex;
-  justify-content:space-between;
-}
-
-.legendary {
+.legendary { 
     color: #ffffff80;
     background: linear-gradient(270deg, #f0f 0% 30%, #0f0 50%, #ff0 80%, #f0f 100%) 0 0 / 300px repeat-x;
     -webkit-background-clip: text;
@@ -273,33 +295,23 @@ textarea {
     animation: 7s infinite color-shift;
 }
 
-@keyframes color-shift {
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 300px 0;
-  }
-}
-
-
-
-.common {
- color: rgb(158, 202, 255);
+.epic {
+  color: #FF99FF;
 }
 
 .rare {
   color: rgb(249, 207, 95);
 }
 
-.epic {
-  color: #FF99FF;
+.common {
+ color: rgb(158, 202, 255);
 }
 
-.chat-pfp {
-  width: 25px;
-}
-
-td {
-  text-align: center;
+@keyframes color-shift { /* Credit to desckshop.pro for color shifting */
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 300px 0;
+  }
 }
