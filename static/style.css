@@ -288,3 +288,7 @@ textarea {
 .chat-pfp {
   width: 25px;
 }
+
+td {
+  text-align: center;
+}
