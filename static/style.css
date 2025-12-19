@@ -204,6 +204,14 @@ td {
   text-align: center;
 }
 
+a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
+  font-weight: bold;
+  margin-top: 0;
+  font-size:1.6rem;
+  text-decoration: none;
+  color: inherit;
+}
+
 /* Tournaments */
 
 .tournament {
@@ -250,6 +258,7 @@ td {
   padding: 10px 16px;
   margin: 2px;
 }
+
 .chat-send:hover {
   background-color: #333;      
   color: #fff;
