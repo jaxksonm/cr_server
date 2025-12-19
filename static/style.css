@@ -257,7 +257,7 @@ textarea {
 }
 
 .pfp {
-  height: 100px;
+  width: 75px;
 }
 
 .lr {
@@ -286,5 +286,5 @@ textarea {
 }
 
 .chat-pfp {
-  height: 30px;
+  width: 25px;
 }
