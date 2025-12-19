@@ -3,13 +3,13 @@
 
 <div class = "bubble">
     <div class="name-and-pfp">
-      <img class="pfp" src="../static/pfp/{{ session.get('pfp') }}.webp">
-      <h1 class="{{ session.get('rarity') }}">{{ session.get("username") }} // {{ session.get('cr_username') }}</h1>
+      <img class="pfp" src="../static/pfp/{{ profile.pfp }}.webp">
+      <h1 class="{{ profile.rarity }}">{{ profile.username }} // {{ profile.cr_username }}</h1>
     </div>
     <h3>Player Tag:</h3>
-    <p class="nested-bubble">#{{ session.get('player_tag') }}</p>
+    <p class="nested-bubble">#{{ profile.player_tag }}</p>
     <h3>UNH CRC Points:</h3>
-    <p class="nested-bubble">{{ session.get('points') }}</p>
+    <p class="nested-bubble">{{ profile.points }}</p>
     <h3>Trophies:</h3>
     <p class="nested-bubble">{{ data['trophies'] }}</p>
     <h3>Highest Trophies:</h3>
@@ -20,8 +20,9 @@
         {{ data['clan']['name'] }}
     {% endif %}
     </p>
+    {% if you %}
     <div class="lr">
-<form method="get" action="{{ url_for('profile_edit') }}">
+      <form method="get" action="{{ url_for('profile_edit') }}">
       <button type="submit">Edit Profile</button>
     </form>
     <form method="post" action="{{ url_for('profile_delete') }}"
@@ -29,7 +30,7 @@
     <button class="red" type="submit">Delete Profile</button>
     </form>
     </div>
-    
+    {% endif %}
 
 </div>
 

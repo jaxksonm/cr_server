@@ -205,22 +205,44 @@ def login():
             return render_template("login.html")
 
 
-@app.route("/profile")
-def profile():
-    if not session.get("user_id"): # Cannot see profile unless logged in
-        flash("Please log in to see profile.", "error")
-        return redirect(url_for("login"))
-    url = f"https://api.clashroyale.com/v1/players/%23{session.get('player_tag')}"
-    headers = {"Authorization": f"Bearer {get_api_key()}"}
+# @app.route("/profile")
+# def profile():
+#     if not session.get("user_id"): # Cannot see profile unless logged in
+#         flash("Please log in to see profile.", "error")
+#         return redirect(url_for("login"))
+#     url = f"https://api.clashroyale.com/v1/players/%23{session.get('player_tag')}"
+#     headers = {"Authorization": f"Bearer {get_api_key()}"}
 
+#     try:
+#         response = requests.get(url, headers=headers)
+#         response.raise_for_status()
+#         data = response.json()
+#         return render_template("profile.html", data=data)
+#     except requests.RequestException as e:
+#         flash("Unable to access Clash Royale API using player tag", "error")
+#         return render_template("profile.html", data=None)
+
+@app.route("/profile/<string:ptag>")
+def profile(ptag):
+    you = False
+    if session.get("player_tag") == ptag:
+        you = True
+    url = f"https://api.clashroyale.com/v1/players/%23{ptag}"
+    headers = {"Authorization": f"Bearer {get_api_key()}"}
+    # have to also get and send over name, username, rarity, pfp, etc. and use stuff we send instead of session.get in profile.html
+    db = get_db()
+    profile = db.execute(
+        "SELECT username, player_tag, points, cr_username, rarity, pfp FROM users WHERE player_tag = ?", (ptag,)
+    ).fetchone()
+    print(type(profile))
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
-        return render_template("profile.html", data=data)
+        return render_template("profile.html", profile=profile, data=data, you=you)
     except requests.RequestException as e:
         flash("Unable to access Clash Royale API using player tag", "error")
-        return render_template("profile.html", data=None)
+        return render_template("profile.html", data=None, you=you)
 
 
 @app.route("/profile/delete", methods=["POST"])
