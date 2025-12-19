@@ -258,9 +258,9 @@ def profile_delete():
 
 @app.route("/chat")
 def chat():
-    if not session.get("user_id"):
-        flash("Please log in to use chat.", "error")
-        return redirect(url_for("login"))
+    # if not session.get("user_id"):
+    #     flash("Please log in to use chat.", "error")
+    #     return redirect(url_for("login"))
 
     db = get_db()
     messages = db.execute("""

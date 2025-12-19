@@ -3,7 +3,11 @@
 {% block content %}
 <div class="chat-page">
   <h1>Clash Royale Club Chat Room</h1>
-  <p>Logged in as <strong>{{ session.username }}</strong></p>
+  {% if session.username %}
+    <p>Logged in as <strong>{{ session.username }}</strong></p>
+  {% else %}
+    <p>Please log in to chat.</p>
+  {% endif %}
 
   <div id="chat-box" class="chat-box">
     {% for m in messages %}
@@ -13,8 +17,8 @@
       </div>
     {% endfor %}
   </div>
-
-  <form id="chat-form" class="chat-input-row" autocomplete="off">
+  {% if session.username %}
+<form id="chat-form" class="chat-input-row" autocomplete="off">
     <input
       id="chat-input"
       class="chat-input"
@@ -24,6 +28,8 @@
     >
     <button class="chat-send" type="submit">Send</button>
   </form>
+  {% endif %}
+  
 </div>
 
 <script>
