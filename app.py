@@ -430,8 +430,8 @@ def chat_send():
         return {"error": "Empty message"}, 400
     db = get_db()
     db.execute(
-        "INSERT INTO chat_messages (user_id, pfp, rarity, message) VALUES (?, ?, ?, ?)",
-        (session["user_id"], session["pfp"], session["rarity"], message),
+        "INSERT INTO chat_messages (user_id, message) VALUES (?, ?)",
+        (session["user_id"], message),
     )
     db.commit()
     return {
