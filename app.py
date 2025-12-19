@@ -5,17 +5,14 @@ from pathlib import Path
 import requests
 from datetime import datetime
 from math import ceil, log2
-# imports for the api key routing 
 import os
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).parent
 load_dotenv(BASE_DIR / ".env")
-
 DATABASE = BASE_DIR / "users.db"
-
 app = Flask(__name__)
-app.secret_key = "key" # TODO: Get secret key
+app.secret_key = os.getenv("APP_KEY")
 
 def get_api_key():
     key = os.getenv("API_KEY")

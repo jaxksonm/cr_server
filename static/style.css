@@ -55,6 +55,13 @@ h1 {
   margin-top: 0.75rem;
 }
 
+.lr {
+  display: flex;
+  justify-content:space-between;
+}
+
+/* Profiles */
+
 .name-and-pfp {
   display: flex;
   gap: 32px;
@@ -63,11 +70,6 @@ h1 {
 
 .pfp {
   width: 75px;
-}
-
-.lr {
-  display: flex;
-  justify-content:space-between;
 }
 
 /* Header */
