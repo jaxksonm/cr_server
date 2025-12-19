@@ -30,8 +30,9 @@
 <div class="bubble">
     <h1>Recent Announcements</h1>
     {% if recent_announcements %}
-    {% for announcement in recent_announcements %}
     <div class="nested-bubble">
+    {% for announcement in recent_announcements %}
+    <div class="bubble">
         <div class="name-and-pfp">
             <img class="pfp" src="../static/pfp/{{ announcement.pfp }}.webp">
             <h1><span  class="{{ announcement.rarity }}">{{ announcement.username }} // {{ announcement.cr_username }}</span><br>{{ announcement.created_at }}</h1>
@@ -39,6 +40,7 @@
         <p>{{ announcement.announcement }}</p>
     </div>   
     {% endfor %}
+    </div>
     
     {% else %}
                 <p class="muted">No recent announcements.</p>
