@@ -270,8 +270,19 @@ textarea {
     background: linear-gradient(270deg, #f0f 0% 30%, #0f0 50%, #ff0 80%, #f0f 100%) 0 0 / 300px repeat-x;
     -webkit-background-clip: text;
     background-clip: text;
-    animation: 7s infinite legendary;
+    animation: 7s infinite color-shift;
 }
+
+@keyframes color-shift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 300px 0;
+  }
+}
+
+
 
 .common {
  color: rgb(158, 202, 255);
