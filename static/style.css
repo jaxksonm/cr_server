@@ -72,6 +72,11 @@ h1 {
   width: 75px;
 }
 
+.deck {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 /* Header */
 
 .topbar {
