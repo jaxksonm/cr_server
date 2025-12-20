@@ -83,6 +83,37 @@ h1 {
   height: auto;
 }
 
+/* Rarity */
+
+.legendary { 
+    color: #ffffff80;
+    background: linear-gradient(270deg, #f0f 0% 30%, #0f0 50%, #ff0 80%, #f0f 100%) 0 0 / 300px repeat-x;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: 7s linear infinite color-shift;
+}
+
+.epic {
+  color: #FF99FF;
+}
+
+.rare {
+  color: rgb(249, 207, 95);
+}
+
+.common {
+ color: rgb(158, 202, 255);
+}
+
+@keyframes color-shift { /* Credit to desckshop.pro for color shifting */
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 300px 0;
+  }
+}
+
 /* Header */
 
 .topbar {
@@ -305,37 +336,6 @@ a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
 
 .chat-pfp {
   width: 25px;
-}
-
-/* Rarity */
-
-.legendary { 
-    color: #ffffff80;
-    background: linear-gradient(270deg, #f0f 0% 30%, #0f0 50%, #ff0 80%, #f0f 100%) 0 0 / 300px repeat-x;
-    -webkit-background-clip: text;
-    background-clip: text;
-    animation: 7s linear infinite color-shift;
-}
-
-.epic {
-  color: #FF99FF;
-}
-
-.rare {
-  color: rgb(249, 207, 95);
-}
-
-.common {
- color: rgb(158, 202, 255);
-}
-
-@keyframes color-shift { /* Credit to desckshop.pro for color shifting */
-  0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 300px 0;
-  }
 }
 
 /* Mobile */

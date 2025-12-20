@@ -67,7 +67,7 @@ def home():
                users.rarity
         FROM announcements
         JOIN users ON announcements.user_id = users.id
-        ORDER BY announcements.created_at ASC
+        ORDER BY announcements.created_at DESC
         LIMIT 3
     """).fetchall()
     if not session.get("user_id"): # User not logged in
