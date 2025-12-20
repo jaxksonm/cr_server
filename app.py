@@ -63,6 +63,7 @@ def home():
         SELECT announcements.announcement,
                announcements.created_at,
                users.username,
+               users.cr_username,
                users.pfp,
                users.rarity
         FROM announcements
@@ -106,6 +107,7 @@ def announcements():
                announcements.created_at,
                announcements.id,
                users.username,
+               users.cr_username,
                users.pfp,
                users.rarity
         FROM announcements
