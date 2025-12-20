@@ -1,5 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pfp TEXT DEFAULT 'None',
+    rarity TEXT DEFAULT 'common',
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
@@ -42,8 +44,7 @@ CREATE TABLE IF NOT EXISTS matches (
 
 CREATE TABLE IF NOT EXISTS announcements (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT,
-    cr_username TEXT,
+    user_id INTEGER NOT NULL,
     announcement TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

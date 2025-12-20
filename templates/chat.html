@@ -2,18 +2,23 @@
 
 {% block content %}
 <div class="chat-page">
-  <h1>Clash Royale Chat Room</h1>
-  <p>Logged in as <strong>{{ session.username }}</strong></p>
+  <h1>Clash Royale Club Chat Room</h1>
+  {% if session.username %}
+    <p>Logged in as <strong>{{ session.username }}</strong></p>
+  {% else %}
+    <p>Please log in to chat.</p>
+  {% endif %}
 
   <div id="chat-box" class="chat-box">
     {% for m in messages %}
       <div class="chat-message {% if m.username == session.username %}my-message{% else %}other-message{% endif %}">
-        <strong>{{ m.username }}:</strong> {{ m.message }}
+        <img class="chat-pfp" src="../static/pfp/{{ m.pfp }}.webp">
+        <span class="{{ m.rarity }}"><strong>{{ m.username }}:</strong></span> {{ m.message }}
       </div>
     {% endfor %}
   </div>
-
-  <form id="chat-form" class="chat-input-row" autocomplete="off">
+  {% if session.username %}
+<form id="chat-form" class="chat-input-row" autocomplete="off">
     <input
       id="chat-input"
       class="chat-input"
@@ -23,6 +28,8 @@
     >
     <button class="chat-send" type="submit">Send</button>
   </form>
+  {% endif %}
+  
 </div>
 
 <script>
@@ -53,7 +60,13 @@ form.addEventListener("submit", async (e) => {
 
   const div = document.createElement("div");
   div.className = `chat-message ${data.username === "{{ session.username }}" ? "my-message" : "other-message"}`;
-  div.innerHTML = `<strong>${data.username}:</strong> ${data.message}`;
+  div.innerHTML = `
+  <img class="chat-pfp" src="/static/pfp/${data.pfp}.webp">
+  <span class="${data.rarity}">
+    <strong>${data.username}:</strong>
+  </span>
+  ${data.message}
+`;
   chatBox.appendChild(div);
 
   chatBox.scrollTop = chatBox.scrollHeight;

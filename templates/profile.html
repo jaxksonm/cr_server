@@ -2,11 +2,20 @@
 {% block content %}
 
 <div class = "bubble">
-    <h1>{{ session.get("username") }} // {{ data['name'] }}</h1>
+    <div class="name-and-pfp">
+      <img class="pfp" src="../static/pfp/{{ profile.pfp }}.webp">
+      <h1 class="{{ profile.rarity }}">{{ profile.username }} // {{ profile.cr_username }}</h1>
+    </div>
+    <h3>Deck:</h3>
+      <div class="nested-bubble deck">
+        {% for card in data['currentDeck'] %}
+          <img class="pfp" alt="{{ card['name'] }}" src="../static/pfp/{{ card['name'] }}.webp">
+        {% endfor %}
+      </div>
     <h3>Player Tag:</h3>
-    <p class="nested-bubble">#{{ session.get('player_tag') }}</p>
+    <p class="nested-bubble">#{{ profile.player_tag }}</p>
     <h3>UNH CRC Points:</h3>
-    <p class="nested-bubble">{{ session.get('points') }}</p>
+    <p class="nested-bubble">{{ profile.points }}</p>
     <h3>Trophies:</h3>
     <p class="nested-bubble">{{ data['trophies'] }}</p>
     <h3>Highest Trophies:</h3>
@@ -17,13 +26,17 @@
         {{ data['clan']['name'] }}
     {% endif %}
     </p>
-    <form method="get" action="{{ url_for('profile_edit') }}">
+    {% if you %}
+    <div class="lr">
+      <form method="get" action="{{ url_for('profile_edit') }}">
       <button type="submit">Edit Profile</button>
     </form>
     <form method="post" action="{{ url_for('profile_delete') }}"
       onsubmit="return confirm('Are you SURE you want to delete your profile?');">
     <button class="red" type="submit">Delete Profile</button>
     </form>
+    </div>
+    {% endif %}
 
 </div>
 

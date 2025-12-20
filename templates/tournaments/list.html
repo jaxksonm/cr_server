@@ -3,7 +3,9 @@
 <div class = bubble>
   <h1>Tournaments</h1>
   {% if session.get("is_admin") %}
-  <p><a href="{{ url_for('tournaments_create') }}">Create tournament</a></p>
+  <form method="get" action="{{ url_for('tournaments_create') }}">
+    <button type="submit">Create</button>
+  </form>
   {% endif %}
 </div>
   {% if tournaments %}
@@ -16,7 +18,7 @@
     {% endfor %}
   {% else %}
   <div class = "bubble">
-        <p>No tournaments scheduled at the moment.</p>
+        <p class="muted">No tournaments scheduled at the moment.</p>
   </div>
   {% endif %}
 {% endblock %}

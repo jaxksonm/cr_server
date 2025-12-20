@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+  <title>UNH Clash Royale Club</title>
 </head>
 <body>
   <header class="topbar">
@@ -15,9 +16,9 @@
       <nav>
         <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
         <a href="{{ url_for('tournaments_list') }}">Tournaments</a>
+        	  <a href="{{ url_for('chat') }}">Chat</a>
         {% if session.get('user_id') %}
-	  <a href="{{ url_for('chat') }}">Chat</a>
-          <a href="{{ url_for('profile') }}">Profile</a>
+          <a href="{{ url_for('profile', ptag=session.get('player_tag')) }}">Profile</a>
           <a href="{{ url_for('logout') }}">Logout</a>
         {% else %}
           <a href="{{ url_for('register') }}">Register</a>

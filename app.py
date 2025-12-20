@@ -5,19 +5,31 @@ from pathlib import Path
 import requests
 from datetime import datetime
 from math import ceil, log2
-# imports for the api key routing 
-import os 
-BASE_DIR = Path(__file__).parent
-DATABASE = BASE_DIR / "users.db"
+import os
+from dotenv import load_dotenv
 
+BASE_DIR = Path(__file__).parent
+load_dotenv(BASE_DIR / ".env")
+DATABASE = BASE_DIR / "users.db"
 app = Flask(__name__)
-app.secret_key = "key" # TODO: Get secret key
+app.secret_key = os.getenv("APP_KEY")
 
 def get_api_key():
     key = os.getenv("API_KEY")
     if not key:
         raise RuntimeError("not a valid api key for variable")
     return key
+
+
+def get_available_pfp(): # Get all available pfps for dropdown menu in profile_edit
+    pfp_dir = BASE_DIR / "static" / "pfp"
+    if not pfp_dir.exists():
+        return []
+    pfp_files = []
+    for file in sorted(pfp_dir.iterdir()):
+        if file.suffix in ['.webp', '.png']:
+            pfp_files.append(file.stem)
+    return pfp_files
 
 
 # Connect to database
@@ -44,9 +56,21 @@ def index():
 @app.route("/home")
 def home():
     db = get_db()
-    recent_announcements = db.execute(
-        "SELECT id, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC LIMIT 3"
-    ).fetchall()
+    # recent_announcements = db.execute(
+    #     "SELECT id, pfp, rarity, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC LIMIT 3"
+    # ).fetchall()
+    recent_announcements = db.execute("""
+        SELECT announcements.announcement,
+               announcements.created_at,
+               users.username,
+               users.cr_username,
+               users.pfp,
+               users.rarity
+        FROM announcements
+        JOIN users ON announcements.user_id = users.id
+        ORDER BY announcements.created_at DESC
+        LIMIT 3
+    """).fetchall()
     if not session.get("user_id"): # User not logged in
         return render_template("home.html", data=None, recent_announcements=recent_announcements)
     else: # User logged in
@@ -67,18 +91,30 @@ def home():
 def announcements():
     db = get_db()
     if (request.method == "POST"):
-        username = session.get("username")
-        cr_username = session.get("cr_username")
+        user_id = session.get("user_id")
         announcement = request.form.get("announcement", "")
         db.execute(
-                "INSERT INTO announcements (username, cr_username, announcement) VALUES (?, ?, ?)",
-                (username, cr_username, announcement),
+                "INSERT INTO announcements (user_id, announcement) VALUES (?, ?)",
+                (user_id, announcement),
             )
         db.commit()
         flash("Announcement posted.", "success")
-    announcements = db.execute(
-        "SELECT id, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC"
-    ).fetchall()
+    # announcements = db.execute(
+    #     "SELECT id, pfp, rarity, username, cr_username, announcement, created_at FROM announcements ORDER BY created_at DESC"
+    # ).fetchall()
+    announcements = db.execute("""
+        SELECT announcements.announcement,
+               announcements.created_at,
+               announcements.id,
+               users.username,
+               users.cr_username,
+               users.pfp,
+               users.rarity
+        FROM announcements
+        JOIN users ON announcements.user_id = users.id
+        ORDER BY announcements.created_at DESC
+        LIMIT 50
+    """).fetchall()
     return render_template("announcements.html", announcements=announcements)
 
 
@@ -177,6 +213,8 @@ def login():
         if user and check_password_hash(user["password_hash"], password): # Login success
             session.clear()
             session["user_id"] = user["id"]
+            session["pfp"] = user["pfp"]
+            session["rarity"] = user["rarity"]
             session["username"] = user["username"]
             session["cr_username"] = user["cr_username"]
             session["player_tag"] = user["player_tag"]
@@ -189,22 +227,33 @@ def login():
             return render_template("login.html")
 
 
-@app.route("/profile")
-def profile():
-    if not session.get("user_id"): # Cannot see profile unless logged in
-        flash("Please log in to see profile.", "error")
-        return redirect(url_for("login"))
-    url = f"https://api.clashroyale.com/v1/players/%23{session.get('player_tag')}"
-    headers = {"Authorization": f"Bearer {get_api_key()}"}
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Logged out.", "success")
+    return redirect(url_for("login"))
 
+
+@app.route("/profile/<string:ptag>")
+def profile(ptag):
+    you = False
+    if session.get("player_tag") == ptag:
+        you = True
+    url = f"https://api.clashroyale.com/v1/players/%23{ptag}"
+    headers = {"Authorization": f"Bearer {get_api_key()}"}
+    # have to also get and send over name, username, rarity, pfp, etc. and use stuff we send instead of session.get in profile.html
+    db = get_db()
+    profile = db.execute(
+        "SELECT username, player_tag, points, cr_username, rarity, pfp FROM users WHERE player_tag = ?", (ptag,)
+    ).fetchone()
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
-        return render_template("profile.html", data=data)
+        return render_template("profile.html", profile=profile, data=data, you=you)
     except requests.RequestException as e:
         flash("Unable to access Clash Royale API using player tag", "error")
-        return render_template("profile.html", data=None)
+        return render_template("profile.html", profile=profile, data=None, you=you)
 
 
 @app.route("/profile/delete", methods=["POST"])
@@ -231,57 +280,12 @@ def profile_delete():
         db.rollback()
         app.logger.exception("Error deleting profile for user %s: %s", uid, e)
         flash("Could not delete profile. Contact an admin.", "error")
-        return redirect(url_for("profile"))
+        return redirect(url_for("profile"), ptag=session.get("player_tag"))
     # 5. Clear session and redirect to home
     session.clear()
     flash("Your profile was deleted.", "success")
     return redirect(url_for("home"))
 
-@app.route("/chat")
-def chat():
-    if not session.get("user_id"):
-        flash("Please log in to use chat.", "error")
-        return redirect(url_for("login"))
-
-    db = get_db()
-    messages = db.execute("""
-        SELECT chat_messages.message,
-               chat_messages.created_at,
-               users.username
-        FROM chat_messages
-        JOIN users ON chat_messages.user_id = users.id
-        ORDER BY chat_messages.created_at ASC
-        LIMIT 50
-    """).fetchall()
-
-    return render_template("chat.html", messages=messages)
-
-
-@app.route("/chat/send", methods=["POST"])
-def chat_send():
-    if not session.get("user_id"):
-        return {"error": "Not logged in"}, 401
-    ####temp admin only chat access while under construction###########
-    if not session.get("is_admin"):
-        return {"error": "Admins only"}, 403
-    ####################################################################
-    data = request.get_json()
-    message = data.get("message", "").strip()
-
-    if not message:
-        return {"error": "Empty message"}, 400
-
-    db = get_db()
-    db.execute(
-        "INSERT INTO chat_messages (user_id, message) VALUES (?, ?)",
-        (session["user_id"], message),
-    )
-    db.commit()
-
-    return {
-        "username": session["username"],
-        "message": message
-    }
 
 @app.route("/profile/edit", methods=["GET", "POST"])
 def profile_edit():
@@ -292,24 +296,29 @@ def profile_edit():
     uid = session["user_id"]
     # Fetch user
     user = db.execute(
-        "SELECT id, username, email, player_tag FROM users WHERE id = ?",
+        "SELECT id, pfp, username, email, player_tag FROM users WHERE id = ?",
         (uid,)
     ).fetchone()
     if not user:
         flash("User not found.", "error")
         return redirect(url_for("logout"))
+    current_pfp = user["pfp"]    
     current_username = user["username"]
     current_email = user["email"]
     current_player_tag = user["player_tag"]
+    available_pfp = get_available_pfp()
     if request.method == "GET":
         return render_template(
             "profile_edit.html",
+            pfp=current_pfp,
             username=current_username,
             email=current_email,
             player_tag=current_player_tag,
+            available_pfp=available_pfp,
         )
     # Get new username/email.pass
     form_username = request.form.get("username", "").strip()
+    form_pfp = request.form.get("pfp", "").strip()
     form_email = request.form.get("email", "").strip().lower()
     form_current_password = request.form.get("current_password", "")
     form_new_password = request.form.get("new_password", "")
@@ -356,6 +365,12 @@ def profile_edit():
                 (form_username, uid),
             )
             session["username"] = form_username
+        if form_pfp != "":
+            db.execute(
+                "UPDATE users SET pfp = ? WHERE id = ?",
+                (form_pfp, uid),
+            )
+            session["pfp"] = form_pfp
         if form_email != "":
             db.execute(
                 "UPDATE users SET email = ? WHERE id = ?",
@@ -383,14 +398,50 @@ def profile_edit():
         )
     # Update session
     flash("Profile updated.", "success")
-    return redirect(url_for("profile"))
+    return redirect(url_for("profile", ptag=current_player_tag))
 
 
-@app.route("/logout")
-def logout():
-    session.clear()
-    flash("Logged out.", "success")
-    return redirect(url_for("login"))
+@app.route("/chat")
+def chat():
+    db = get_db()
+    messages = db.execute("""
+        SELECT chat_messages.message,
+               chat_messages.created_at,
+               users.username,
+               users.pfp,
+               users.rarity
+        FROM chat_messages
+        JOIN users ON chat_messages.user_id = users.id
+        ORDER BY chat_messages.created_at ASC
+        LIMIT 50
+    """).fetchall()
+    return render_template("chat.html", messages=messages)
+
+
+@app.route("/chat/send", methods=["POST"])
+def chat_send():
+    if not session.get("user_id"):
+        return {"error": "Not logged in"}, 401
+    # TODO: ONLY ADMINS CAN ACCESS CHAT FOR NOW UNTIL WE PUT A LIMIT
+    if not session.get("is_admin"):
+        return {"error": "Admins only"}, 403
+    ################################################################
+    data = request.get_json()
+    message = data.get("message", "").strip()
+    if not message:
+        return {"error": "Empty message"}, 400
+    db = get_db()
+    db.execute(
+        "INSERT INTO chat_messages (user_id, message) VALUES (?, ?)",
+        (session["user_id"], message),
+    )
+    db.commit()
+    return {
+        "username": session["username"],
+        "pfp": session["pfp"],
+        "rarity": session["rarity"],
+        "message": message
+    }
 
 
 def create_bracket(participants):
@@ -600,14 +651,14 @@ def leaderboard():
     # Get top ten
     db = get_db()
     top_rows = db.execute(
-        "SELECT username, cr_username, player_tag, points FROM users ORDER BY points DESC LIMIT 10"
+        "SELECT username, pfp, rarity, cr_username, player_tag, points FROM users ORDER BY points DESC LIMIT 10"
     ).fetchall()
     # Convert to dicts and assign rank (ties share rank)
     top = []
     for player in top_rows:
-        rank_row = db.execute("SELECT COUNT(*) AS cnt FROM users WHERE points > ?", (session.get("points"),)).fetchone()
+        rank_row = db.execute("SELECT COUNT(*) AS cnt FROM users WHERE points > ?", (player["points"],)).fetchone()
         rank = rank_row["cnt"] + 1
-        top.append({"rank": rank, "username": player["username"], "cr_username": player["cr_username"], "player_tag": player["player_tag"], "points": player["points"]})
+        top.append({"rank": rank, "pfp": player["pfp"], "rarity": player["rarity"], "username": player["username"], "cr_username": player["cr_username"], "player_tag": player["player_tag"], "points": player["points"]})
     # Get current user's ranking
     current_user = None
     user_row = None
@@ -615,7 +666,7 @@ def leaderboard():
     if user_id:
         rank_row = db.execute("SELECT COUNT(*) AS cnt FROM users WHERE points > ?", (session.get("points"),)).fetchone()
         rank = rank_row["cnt"] + 1
-        current_user = {"rank": rank, "username": session.get("username"), "cr_username": session.get("cr_username"), "player_tag": session.get("player_tag"), "points": session.get("points")}
+        current_user = {"rank": rank, "pfp": session.get("pfp"), "rarity": session.get("rarity"), "username": session.get("username"), "cr_username": session.get("cr_username"), "player_tag": session.get("player_tag"), "points": session.get("points")}
     return render_template(
         "leaderboard.html",
         top=top,

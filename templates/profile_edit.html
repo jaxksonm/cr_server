@@ -3,6 +3,17 @@
 
 <form method="post" class="bubble">
     <h1>Edit Profile</h1>
+
+  <label>
+    <h3>Profile Picture</h3>
+    <select name="pfp">
+      <option value="">-- No Change --</option>
+      {% for pic in available_pfp %}
+      <option value="{{ pic }}" {% if pic == pfp %}selected{% endif %}>{{ pic }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
   <label>
     <h3>Username</h3>
     <input name="username" value="{{ username }}">
@@ -35,9 +46,12 @@
     <h3>Confirm New Password</h3>
     <input name="new_password_confirm" type="password">
   </label>
-
-  <button type="submit">Save Changes</button>
-  <p><a href="{{ url_for('profile') }}">Cancel</a></p>
-</form>
+  <div class="lr">
+    <button type="submit">Save</button>
+    </form>
+    <form method="get" action="{{ url_for('profile', ptag=session.get('player_tag')) }}">
+    <button class="red" type="submit">Cancel</button>
+    </form>
+  </div>
 
 {% endblock %}

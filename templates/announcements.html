@@ -9,9 +9,14 @@
         </form><br>
     {% endif %}
     {% if announcements %}
+        <div class="nested-bubble">
+
     {% for announcement in announcements %}
-    <div class="nested-bubble">
-        <h3>{{ announcement.username }} // {{ announcement.cr_username }} -- {{ announcement.created_at }}</h3>
+    <div class="bubble">
+        <div class="name-and-pfp">
+            <img class="pfp" src="../static/pfp/{{ announcement.pfp }}.webp">
+            <h1><span  class="{{ announcement.rarity }}">{{ announcement.username }} // {{ announcement.cr_username }}</span><br>{{ announcement.created_at }}</h1>
+        </div>
         <p>{{ announcement.announcement }}</p>
         {% if session.get("is_admin") %}
             <form method="POST" action="{{ url_for('announcement_delete', aid=announcement.id) }}"
@@ -21,6 +26,9 @@
         {% endif %}
     </div>
     {% endfor %}
+    </div>
+    {% else %}
+        <p class="muted">No announcements.</p>
     {% endif %}
 </div>
 {% endblock %}

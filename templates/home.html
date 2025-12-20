@@ -22,19 +22,31 @@
                 <li>You can find your player tag in your profile in Clash Royale under your username. It is of the form #XXXXXXX</li>
             </ul>
             {% endif %}
-            <li><a href="https://discord.gg/g6w78BPR">Join the UNH CRC Discord server!</a></li>
+            <li><a target="_blank" href="https://discord.gg/g6w78BPR">Join the UNH CRC Discord server!</a></li>
         </ul>
         <p class="muted">Questions? Email <a href="mailto:rdg1032@unh.edu">ronan.gleeson@unh.edu</a> or <a href="mailto:rdg1032@unh.edu">jackson.mcdonald@unh.edu</a></p>
     </p>
 </div>
 <div class="bubble">
-    <h1>Announcements</h1>
-    {% for announcement in recent_announcements %}
+    <h1>Recent Announcements</h1>
+    {% if recent_announcements %}
     <div class="nested-bubble">
-        <h3>{{ announcement.username }} // {{ announcement.cr_username }} -- {{ announcement.created_at }}</h3>
+    {% for announcement in recent_announcements %}
+    <div class="bubble">
+        <div class="name-and-pfp">
+            <img class="pfp" src="../static/pfp/{{ announcement.pfp }}.webp">
+            <h1><span class="{{ announcement.rarity }}">{{ announcement.username }} // {{ announcement.cr_username }}</span><br>{{ announcement.created_at }}</h1>
+        </div>
         <p>{{ announcement.announcement }}</p>
     </div>   
     {% endfor %}
-    <p><a href="{{ url_for('announcements') }}">View all announcements</a></p>
+    </div>
+    
+    {% else %}
+                <p class="muted">No recent announcements.</p>
+    {% endif %}
+    <form method="get" action="{{ url_for('announcements')}}">
+        <button type="submit">View All Announcements</button>
+    </form>
 </div>
 {% endblock %}
