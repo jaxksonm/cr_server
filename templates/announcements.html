@@ -19,8 +19,9 @@
         </div>
         <p>{{ announcement.announcement }}</p>
         {% if session.get("is_admin") %}
-            <form method="POST" action="{{ url_for('announcement_delete', aid=announcement.id) }}"
+            <form class="lr" method="POST" action="{{ url_for('announcement_delete', aid=announcement.id) }}"
                 onsubmit="return confirm('Are you sure you want to delete this announcement?');">
+                <p></p>
                 <button type="submit" class="red">Delete</button>
             </form>
         {% endif %}
