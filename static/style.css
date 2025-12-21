@@ -29,7 +29,7 @@ h1 {
 
 .container {
   max-width: var(--maxw);
-  margin: 2rem auto;
+  margin: 1rem auto;
   padding: 0 1rem;
 }
 
