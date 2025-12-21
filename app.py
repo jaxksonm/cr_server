@@ -472,7 +472,11 @@ def create_bracket(participants):
 @app.route("/tournaments")
 def tournaments_list():
     db = get_db()
-    rows = db.execute("SELECT id, name, description, date, location FROM tournaments ORDER BY date ASC").fetchall()
+    rows = db.execute("""
+        SELECT id, name, description, date, location
+        FROM tournaments
+        ORDER BY datetime(date) ASC
+    """).fetchall()
     return render_template("tournaments/list.html", tournaments=rows)
 
 
