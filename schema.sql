@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    pfp TEXT DEFAULT 'None',
+    pfp TEXT DEFAULT 'Knight',
     rarity TEXT DEFAULT 'common',
     username TEXT NOT NULL UNIQUE,
     email TEXT NOT NULL UNIQUE,
