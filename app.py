@@ -154,6 +154,9 @@ def register():
         if not username or not email or not password or not player_tag:
             flash("Please fill in all required fields.", "error")
             return render_template("register.html")
+        if len(username) > 20:
+            flash("Username cannot exceed 50 characters.", "error")
+            return render_template("register.html")
         if password != password_confirm:
             flash("Passwords do not match.", "error")
             return render_template("register.html")
@@ -472,7 +475,11 @@ def create_bracket(participants):
 @app.route("/tournaments")
 def tournaments_list():
     db = get_db()
-    rows = db.execute("SELECT id, name, description, date, location FROM tournaments ORDER BY date ASC").fetchall()
+    rows = db.execute("""
+        SELECT id, name, description, date, location
+        FROM tournaments
+        ORDER BY datetime(date) ASC
+    """).fetchall()
     return render_template("tournaments/list.html", tournaments=rows)
 
 

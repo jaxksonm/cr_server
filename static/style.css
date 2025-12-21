@@ -29,7 +29,7 @@ h1 {
 
 .container {
   max-width: var(--maxw);
-  margin: 2rem auto;
+  margin: 1rem auto;
   padding: 0 1rem;
 }
 
@@ -131,6 +131,9 @@ h1 {
 .logo {
   font-weight:700;
   text-decoration:none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .logo:link, .logo:visited, .logo:hover, .logo:active {
@@ -197,13 +200,29 @@ button {
   padding: 0.6rem 0.9rem;
   border: none;
   border-radius: 8px;
-  background: #111;
+  background: #333;
   color: white;
   cursor: pointer;
 }
 
+button:hover {
+  background-color: #666;      
+}
+
+button:active {
+  background-color: #333;    
+}
+
 .red {
-  background: red;
+  background: #F66;
+}
+
+.red:hover {
+  background-color: #D44;      
+}
+
+.red:active {
+  background-color: #F66;    
 }
 
 .flash {
@@ -236,14 +255,17 @@ table.leaderboard th {
 
 table.leaderboard td {
   border-bottom: 1px solid #eee;
+  vertical-align: middle;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 table.leaderboard tr.you {
   background: #fff7d6;
 }
 
-td {
-  text-align: center;
+table.leaderboard tr {
+  height: 106px;
 }
 
 a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
@@ -301,15 +323,6 @@ a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
   margin: 2px;
 }
 
-.chat-send:hover {
-  background-color: #333;      
-  color: #fff;
-}
-
-.chat-send:active {
-  background-color: #000;    
-}
-
 .chat-message {
   display: flex;
   gap: 8px;
@@ -353,6 +366,7 @@ a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
 
   .logo {
     flex: 1 1 1;
+    margin-bottom: 0.5rem;
   }
 
   .topbar .container nav a {
