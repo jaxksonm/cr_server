@@ -131,6 +131,9 @@ h1 {
 .logo {
   font-weight:700;
   text-decoration:none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .logo:link, .logo:visited, .logo:hover, .logo:active {
