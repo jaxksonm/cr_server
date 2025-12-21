@@ -237,6 +237,8 @@ table.leaderboard th {
 table.leaderboard td {
   border-bottom: 1px solid #eee;
   vertical-align: middle;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 table.leaderboard tr.you {
