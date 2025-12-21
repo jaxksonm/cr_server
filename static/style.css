@@ -398,7 +398,7 @@ a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
     font-size: 1rem;
   }
 
-  a.ranking {
+  a.ranking, a.ranking:link, a.ranking:visited, a.ranking:active, a.ranking:hover {
     font-size: 1rem;
   }
 
