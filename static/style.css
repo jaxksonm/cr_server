@@ -341,8 +341,33 @@ a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
 /* Mobile */
 
 @media (max-width: 600px) {
-  .container {
-    gap: 16px;
+  .topbar .container {
+    justify-content: space-around;
+    flex-wrap: wrap;
+    padding: 0;
+  }
+
+  nav {
+    white-space: nowrap;
+  }
+
+  .logo {
+    flex: 1 1 1;
+  }
+
+  .topbar .container nav a {
+    flex: 1 1 0.2;
+    font-size: 0.9rem;
+    margin: 4px;
+  }
+
+   nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  nav::-webkit-scrollbar {
+    display: none;
   }
 
   body {
