@@ -205,8 +205,24 @@ button {
   cursor: pointer;
 }
 
+button:hover {
+  background-color: #333;      
+}
+
+button:active {
+  background-color: #000;    
+}
+
 .red {
-  background: red;
+  background: #F00;
+}
+
+.red:hover {
+  background-color: #C00;      
+}
+
+.red:active {
+  background-color: #F00;    
 }
 
 .flash {
@@ -305,15 +321,6 @@ a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
 .chat-send {
   padding: 10px 16px;
   margin: 2px;
-}
-
-.chat-send:hover {
-  background-color: #333;      
-  color: #fff;
-}
-
-.chat-send:active {
-  background-color: #000;    
 }
 
 .chat-message {
