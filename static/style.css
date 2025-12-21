@@ -236,14 +236,15 @@ table.leaderboard th {
 
 table.leaderboard td {
   border-bottom: 1px solid #eee;
+  vertical-align: middle;
 }
 
 table.leaderboard tr.you {
   background: #fff7d6;
 }
 
-td {
-  text-align: center;
+table.leaderboard tr {
+  height: 100px;
 }
 
 a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
