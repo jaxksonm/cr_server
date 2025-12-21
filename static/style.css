@@ -268,6 +268,10 @@ table.leaderboard tr {
   height: 106px;
 }
 
+table.leaderboard tr.top-row {
+  height: 26px;
+}
+
 a.ranking, a.ranking:hover, a.ranking:visited, a.ranking:active {
   font-weight: bold;
   margin-top: 0;
